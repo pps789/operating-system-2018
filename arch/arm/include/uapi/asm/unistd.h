@@ -407,9 +407,6 @@
 #define __NR_kcmp			(__NR_SYSCALL_BASE+378)
 #define __NR_finit_module		(__NR_SYSCALL_BASE+379)
 #define __NR_ptree			(__NR_SYSCALL_BASE+380)
-#define __NR_blank0			(__NR_SYSCALL_BASE+381)
-#define __NR_blank1			(__NR_SYSCALL_BASE+382)
-#define __NR_blank2			(__NR_SYSCALL_BASE+383)
 
 /*
  * This may need to be greater than __NR_last_syscall+1 in order to
