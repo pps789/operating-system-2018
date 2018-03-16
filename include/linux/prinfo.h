@@ -8,4 +8,3 @@ struct prinfo {
 	char comm[64];
 };
 
-int prtree(struct prinfo *buf, int *nr);
