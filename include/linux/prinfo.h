@@ -1,3 +1,7 @@
+#ifndef _PRINFO_H_
+#define _PRINFO_H_
+
+#include <sys/types.h>
 struct prinfo {
 	long state;
 	pid_t pid;
@@ -8,3 +12,4 @@ struct prinfo {
 	char comm[64];
 };
 
+#endif
