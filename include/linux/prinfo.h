@@ -1,7 +1,7 @@
 #ifndef _PRINFO_H_
 #define _PRINFO_H_
 
-#include <sys/types.h>
+#include <linux/types.h>
 struct prinfo {
 	long state;
 	pid_t pid;
