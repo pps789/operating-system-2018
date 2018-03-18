@@ -15,7 +15,7 @@ struct trav_result {
 /*
    record process information into buf.
 */
-void record_process(struct task_struct* task, struct prinfo* buf){
+static void record_process(struct task_struct* task, struct prinfo* buf){
     struct task_struct
         *parent = task->real_parent,
         *first_child = list_first_entry_or_null(&task->children, struct task_struct, sibling);
@@ -38,7 +38,7 @@ void record_process(struct task_struct* task, struct prinfo* buf){
     if(next_sibling) buf->next_sibling_pid = next_sibling->pid;
 }
 
-void traverse_process(struct task_struct* task, struct trav_result* tvr) {
+static void traverse_process(struct task_struct* task, struct trav_result* tvr) {
 	struct list_head* child_list; 
 
 	// measure size
@@ -72,6 +72,7 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
 
     // memory allocation
 	data = kmalloc(sizeof(struct prinfo)*nr, GFP_KERNEL);
+    if(data == NULL) return -EFAULT;
 
 	// set trav_result
 	tvr.data = data;
