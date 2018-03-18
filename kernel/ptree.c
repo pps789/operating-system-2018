@@ -59,12 +59,13 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     int nr;
     struct prinfo* data;
     struct trav_result tvr;
+
 	// check whether buff or nr is NULL
     if(buf == NULL || _nr == NULL) return -EINVAL;
 
     // check accessibility of user memory
-    if(access_ok(VERIFY_READ, _nr, sizeof(int))) return -EFAULT;
-    if(access_ok(VERIFY_WRITE, _nr, sizeof(int))) return -EFAULT;
+    if(access_ok(VERIFY_READ, _nr, sizeof(int)) == 0) return -EFAULT;
+    if(access_ok(VERIFY_WRITE, _nr, sizeof(int)) == 0) return -EFAULT;
 
     if(copy_from_user(&nr, _nr, sizeof(int)) != 0) return -EFAULT;
     if(nr < 1) return -EINVAL;
@@ -83,6 +84,10 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     read_lock(&tasklist_lock);
     traverse_process(&init_task, &tvr);
     read_unlock(&tasklist_lock);
+
+    // copy to user
+    if(copy_to_user(buf, &tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
+    if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
 
     // TODO: return proper value
     return 0;
