@@ -86,7 +86,7 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     read_unlock(&tasklist_lock);
 
     // copy to user
-    if(copy_to_user(buf, &tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
+    if(copy_to_user(buf, tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
     if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
 
     // TODO: return proper value
