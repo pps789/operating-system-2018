@@ -42,7 +42,9 @@ static void traverse_process(struct task_struct* task, struct trav_result* tvr) 
 	struct list_head* child_list; 
 
 	// record process down here
-	record_process(task, tvr->data + tvr->nr);
+    if(tvr->nr < tvr->nr_max) {
+        record_process(task, tvr->data + tvr->nr);
+    }
 	(tvr->nr)++;
 	// recursion and iteration start
 	list_for_each(child_list, &task->children) {
@@ -83,18 +85,17 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
 
     // copy to user
     if(copy_to_user(buf, tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
-    if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
 
     // return the total number of process
 	if (tvr.nr > tvr.nr_max)
 	{
-		nr_tot = tvr.nr;
-		tvr.nr = tvr.nr_max;
-		*_nr = tvr.nr;
+        nr_tot = tvr.nr;
+        tvr.nr = tvr.nr_max;
 	}
 	else {
-		nr_tot = tvr.nr;
-		*_nr = tvr.nr;
+        nr_tot = tvr.nr;
 	}
+
+    if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
 	return nr_tot;
 }
