@@ -90,9 +90,11 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
 	{
 		nr_tot = tvr.nr;
 		tvr.nr = tvr.nr_max;
+		*_nr = tvr.nr;
 	}
 	else {
 		nr_tot = tvr.nr;
+		*_nr = tvr.nr;
 	}
 	return nr_tot;
 }
