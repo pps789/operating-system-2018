@@ -41,10 +41,6 @@ static void record_process(struct task_struct* task, struct prinfo* buf){
 static void traverse_process(struct task_struct* task, struct trav_result* tvr) {
 	struct list_head* child_list; 
 
-	// measure size
-	if(tvr->nr >= tvr->nr_max)
-		return;
-
 	// record process down here
 	record_process(task, tvr->data + tvr->nr);
 	(tvr->nr)++;
@@ -59,7 +55,7 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     int nr;
     struct prinfo* data;
     struct trav_result tvr;
-
+	int nr_tot;
 	// check whether buff or nr is NULL
     if(buf == NULL || _nr == NULL) return -EINVAL;
 
@@ -89,6 +85,14 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     if(copy_to_user(buf, tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
     if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
 
-    // TODO: return proper value
-    return 0;
+    // return the total number of process
+	if (tvr.nr > tvr.nr_max)
+	{
+		nr_tot = tvr.nr;
+		tvr.nr = tvr.nr_max;
+	}
+	else {
+		nr_tot = tvr.nr;
+	}
+	return nr_tot;
 }
