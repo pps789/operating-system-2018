@@ -83,12 +83,10 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
     traverse_process(&init_task, &tvr);
     read_unlock(&tasklist_lock);
 
-    // copy to user
-    if(copy_to_user(buf, tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
-
     // return the total number of process
 	if (tvr.nr > tvr.nr_max)
 	{
+        // # of process is greater than buffer size
         nr_tot = tvr.nr;
         tvr.nr = tvr.nr_max;
 	}
@@ -96,6 +94,11 @@ asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
         nr_tot = tvr.nr;
 	}
 
+    // copy to user
+    if(copy_to_user(buf, tvr.data, sizeof(struct prinfo) * tvr.nr) != 0) return -EFAULT;
     if(copy_to_user(_nr, &tvr.nr, sizeof(int)) != 0) return -EFAULT;
+
+    kfree(data);
+
 	return nr_tot;
 }
