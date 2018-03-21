@@ -6,11 +6,14 @@
 #define __NR_ptree 380
 #define NR_MAX 300
 
-struct prinfo{
-    long state;
-    pid_t pid, parent_pid, first_child_pid, next_sibling_pid;
-    long uid;
-    char comm[64];
+struct prinfo {
+	long state;
+	pid_t pid;
+	pid_t parent_pid;
+	pid_t first_child_pid;
+	pid_t next_sibling_pid;
+	long uid;
+	char comm[64];
 };
 
 void print_form(struct prinfo *p, int idx, int now_tap) {
@@ -55,10 +58,15 @@ int main() {
 	printf("---------------syscall test start!----------------\n");
 	nr_tot = syscall(__NR_ptree, buf, &nr);
 	printf("---------------syscall test end!----------------\n");
-	
-	print_ptree(buf, nr);
-	printf("number of total process: %d\n", nr_tot);
-	printf("number of copied process: %d\n", nr);
-	free(buf);
-	return 0;
+
+    if (nr_tot < 0){
+        perror("syscall ptree error");
+    }
+    else{
+        print_ptree(buf, nr);
+        printf("number of total process: %d\n", nr_tot);
+        printf("number of copied process: %d\n", nr);
+        free(buf);
+    }
+    return 0;
 }
