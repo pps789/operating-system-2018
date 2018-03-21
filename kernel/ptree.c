@@ -53,7 +53,7 @@ static void traverse_process(struct task_struct* task, struct trav_result* tvr) 
 	}
 }
 
-asmlinkage int sys_ptree(struct prinfo* buf, int* _nr) {
+asmlinkage int sys_ptree(struct prinfo __user *buf, int __user *_nr) {
     int nr;
     struct prinfo* data;
     struct trav_result tvr;
