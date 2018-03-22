@@ -19,7 +19,7 @@ Project1
 > 4. `record_process` transforms `struct task_struct` form into `struct prinfo` form.
 > 5. After calling `record_process`, `traverse_process` saves current result to `struct trv_result`. `struct trv_result` contains of `int nr`, `int nr_max` and `strcut prinfo *buf`.
 > 6. After all `traverse_process` end, `sys_ptree(380)` returns the number of total process entries on process.
-> 7. `test_ptree.c` recieves result from `sys_ptree(380)`. Then, it prints process tree, number of copied entries and number of total entires on console.  
+> 7. `test_ptree.c` recieves result from `sys_ptree(380)`. Then, it prints process tree on cosole. Additionally it prints number of copied entries and number of total entires.  
 
 > ## Process tree investigation
 > As you build kernel and run `test_ptree.c`,  you can see  process tree printed on the screen.
