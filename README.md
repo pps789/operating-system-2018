@@ -26,6 +26,7 @@ Project1
 > ## Process tree investigation
 > As you build kernel and run `test_ptree.c`,  you can see  process tree printed on the screen.
 > There are 173 active processes. `swapper` process is the root of every other processes. And this process has two childeren: `systemd`and `kthreadd`. Evry other process is descendant of these two processes.
+> For example, test program `test_ptree`'s ancestors are `swapper`, `systemd`, `login`, `bash`. We can know that `test_ptree` is forked from `bash`.
 > To know about the full content of process tree, read `output`.
 
 > ## Lessons learned
