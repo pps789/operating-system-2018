@@ -7,9 +7,10 @@ Project1
 >  This project is the first project of Operating System, 2018 spring.
 
 > ## How to build
-> 1. To build kernel, `./build`
-> 2. To test, move to test folder, and `make`. Then, runnable file `test_ptree` is generated. 
-> 3. import `test_ptree` to ARTIK and run.
+> 1. To build kernel, type `./build`
+> 2. To test, move to `test` folder, and type `make`. Then, runnable file `test_ptree` will be generated. 
+> 3. import `test_ptree` to ARTIK using sdb instructions.
+> 4. To run, type `/root/test_ptree` on ARTIK screen.
 
 > ## High-level design & Implementation
 >  We designed and implemented our system call to follow the steps below:
@@ -20,10 +21,13 @@ Project1
 > 5. After calling `record_process`, `traverse_process` saves current result to `struct trv_result`. `struct trv_result` contains of `int nr`, `int nr_max` and `strcut prinfo *buf`.
 > 6. After all `traverse_process` end, `sys_ptree(380)` returns the number of total process entries on process.
 > 7. `test_ptree.c` recieves result from `sys_ptree(380)`. Then, it prints process tree on cosole. Additionally it prints number of copied entries and number of total entires.  
+> The full out put is recorded in `output` file.
 
 > ## Process tree investigation
 > As you build kernel and run `test_ptree.c`,  you can see  process tree printed on the screen.
+> There are 173 active processes. `swapper` process is the root of every other processes. And this process has two childeren: `systemd`and `kthreadd`. Evry other process is descendant of these two processes.
+> To know about the full content of process tree, read `output`.
 
 > ## Lessons learned
 > 1. Be familiar with git.
-> 2. I should have took this  course before Call of Duty
+> 2. I should have took this  course before the Call of Duty
