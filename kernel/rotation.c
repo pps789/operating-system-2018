@@ -1,8 +1,7 @@
-#include<linux/rotation.h>
 #include<linux/types.h>
 #include<linux/uaccess.h>
 #include<linux/spinlock.h>
-#include<linux/spinlcok_types.h>
+#include<linux/spinlock_types.h>
 #include<linux/wait.h>
 #include<linux/sched.h>
 #include<uapi/asm-generic/errno-base.h>
@@ -11,13 +10,15 @@
 
 static struct list_head pend_list = LIST_HEAD_INIT(pend_list);
 static struct list_head acq_list = LIST_HEAD_INIT(acq_list);
-static int[360] ref_counter = {0, };
+static int ref_counter[360] = {0, };
 
 struct rot_lock_t {
 	int degree;
 	int range;
 	pid_t pid;
 };
+
+DEFINE_SPINLOCK(rot_spinlock);
 
 int sys_set_rotation(int dgree) {
 }
