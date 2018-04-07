@@ -8,6 +8,7 @@
 #include<linux/list.h>
 #include<linux/signal.h>
 
+
 #define TYPE_READ 1
 #define TYPE_WRITE 2
 
@@ -26,20 +27,16 @@ struct rot_lock_t {
 DEFINE_SPINLOCK(rot_spinlock);
 
 static int lock_available(struct rot_lock_t *p) {
-	int degree = p->degree;
-	int range = p->range;
-	pid_t pid = p->pid;
-	int type = p->type;
 	struct list_head now = p->now;
-
-	int lower = (degree - range)%360;
+	int lower = (p->degree - p->range)%360;
 	if(lower < 0)
 		lower = lower + 360;
-	int upper = (degree + range)%360;
-
-	int i = lower;
+	int upper = (p->degree + p->range)%360;
+	int i, j = lower;
 	bool avail = true;
-	if(type == TYPE_WRITE) {
+	struct rot_lock_t *data;
+	
+	if(p->type == TYPE_WRITE) {
 		do {
 			avail = avail && (ref_counter[i] == 0);
 			i = (i+1)%360;
@@ -48,8 +45,9 @@ static int lock_available(struct rot_lock_t *p) {
 
 		if(avail == true) {
 			//list add to acq_list
+			data = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
+			data = &p;
 			list_add_tail(&now, &acq_list);
-			int j = lower;
 			do {
 				ref_counter[j] = -1;
 			}
@@ -66,16 +64,44 @@ static int lock_available(struct rot_lock_t *p) {
 		
 		if(avail == true) {
 			list_add_tail(&now, &acq_list);
-			int j = lower;
 			do {
 				ref_counter[j] = -1;
 			}
 			while (j != upper);
 		}
 	}
-	return avail; // TODO: type check, etc...
+	return avail; // true: 1 false: 0
 }
 
+static int lock_exists(struct rot_lock_t *p) {
+	pid_t pid = p->pid
+	int type = p->type;
+	struct list_head now = p->now;
+	int lower = (p->degree - p->range)%360;
+	if(lower < 0)
+		lower = lower + 360;
+	int upper = (p->degree + p->range)%360;
+	
+	if(type == TYPE_WRITE) {
+		//soft filter
+		if((ref_counter[lower] == -1) && (ref_counter[upper] == -1) && (ref_counter[degree] == -1)) {
+			list_for_each_prev_safe(pos, n, head) {
+			
+			}
+		}
+	}
+	else {
+		//soft filter
+		if((ref_counter[lower] >0) && (ref_counter[upper] >0) && (ref_counter[degree] > 0)) {
+			list_for_each_prev_safe(pos, n, head) {
+			}
+		}
+
+	}
+
+
+	
+}
 int sys_set_rotation(int dgree) {
 }
 
