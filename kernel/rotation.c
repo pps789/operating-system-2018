@@ -61,115 +61,170 @@ static int rot_lock_t_has_rotation(struct rot_lock_t *rot_lock) {
 }
 
 /*
- * This function checks if new rot_loc_t can be inserted into acq_list
- * and insert it if available
+ * This function insert new rot_lock_t into acq_head.
  *
  * If success, return 1.
- * Oterwise, return 0.
+ * Otherwise, return 0.
  * You should call this function with rot_spinlock
+ */
+static int rot_lock_t_add_into_acq(struct rot_lock_t *p) {
+	int degree = p->degree;
+	int range = p->range;
+	int type = p->type;
+	int lower = degree - range;
+	if(lower < 0) lower = lower + 360;
+    if(type == TYPE_WRITE) {
+        int i;
+        for(i=0; i<=range*2; i++) {
+            ref_counter[(lower+i)%360] = -1;
+        }
+    }
+    else if(type == TYPE_READ) {
+        int i;
+        for(i=0; i<=range*2; i++) {
+            ref_counter[(lower+i)%360]++;
+        }
+    }
+    list_add_tail(&p->loc, &acq_head);
+    return 1;
+}
+
+/*
+ * This function checks if new rot_lock_t can be inserted into acq_list.
+ * If possible, return 1.
+ * Otherwise, return 0.
  */
 static int lock_available(struct rot_lock_t *p) {
     // variables
     int degree = p->degree;
     int range = p->range;
     int type = p->type;
-    struct list_head loc = p->loc;
-
     // lower: 'beginning' degree (inclusive)
-    int lower = (degree - range)%360;
-    // upper: 'ending' degree (inclusive)
-    int upper = (degree + range)%360;
+    int lower = degree - range;
     // return value
     int avail = 1;
-    struct rot_lock_t *data;
+    if(lower<0) lower = lower+360;
 
-    // TODO: We should investigate pending list...
-
+    if(!rot_lock_t_has_rotation(p)) return 0;
 
     if(type == TYPE_WRITE) {
+        // if type is WRITE, all value of ref_counter in range should be 0
         int i;
         for(i=0; i<=range*2; i++) {
-            // if type is WRITE, all value of ref_counter in range should be 0
             if(ref_counter[(lower+i)%360] != 0){
                 avail = 0;
             }
         }
-
-        // TODO: remove this!
-        /*
-        if(avail) {
-            //list add to acq_list
-            data = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
-            data = &p;
-            list_add_tail(&loc, &acq_head);
-            do {
-                ref_counter[j] = -1;
-            }
-            while(j != upper);
-        }
-        */
     }
     else {
+        // if type is READ, all value of ref_counter in range should be at least 0
         int i;
         for(i=0; i<=range*2; i++){
-            if(ref_counter[(lower+i)%360] >= 0){
+            if(ref_counter[(lower+i)%360] < 0){
                 avail = 0;
             }
         }
+    }
 
-        // TODO: remove this!
-        /*
-        if(avail == true) {
-            list_add_tail(&loc, &acq_head);
-            do {
-                ref_counter[j] = -1;
+    // prevent write starvation
+    if(type == TYPE_READ && avail) {
+        // EXCEPTION: if all ref_counter is 0,
+        // and no writer CAN grab the lock,
+        // then reader can grab the lock!
+        int immediately = 1;
+        int i;
+        for(i=0; i<=range*2; i++){
+            if(ref_counter[(lower+i)%360] != 0){
+                immediately = 0;
             }
-            while (j != upper);
         }
-        */
+        
+        if(immediately) {
+            // if writer CAN grab, should yield
+            struct rot_lock_t *pending;
+            list_for_each_entry(pending, &pend_head, loc) {
+                if(pending->type == TYPE_WRITE
+                        && rot_lock_t_has_rotation(pending)) {
+                    int writer_can_grab = 1;
+                    int i;
+                    int writer_lower = pending->degree - pending->range;
+                    if(writer_lower < 0) writer_lower += 360;
+                    for(i=0; i<=pending->range*2; i++){
+                        if(ref_counter[(writer_lower + i)%360] != 0) {
+                            writer_can_grab = 0;
+                            break;
+                        }
+                    }
+
+                    if(writer_can_grab) {
+                        avail = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            // Check another writer is pending...
+            struct rot_lock_t *pending;
+            list_for_each_entry(pending, &pend_head, loc) {
+                if(pending->type == TYPE_WRITE
+                        && rot_lock_t_has_rotation(pending)) {
+                    avail = 0;
+                    break;
+                }
+            }
+        }
     }
 
     return avail; // true: 1 false: 0
 }
 
-//this function checks if the same rot_lock_t exists in acq_list
-//if it exists, delete and return 1
-static int lock_exists(struct rot_lock_t *p) {
+/*
+ * this function checks if the same rot_lock_t exists in acq_list
+ * if it exists, delete and return 1
+ */
+static int rot_lock_t_remove(struct rot_lock_t *p) {
     //variables
     int degree = p->degree;
     int range = p->range;
     pid_t pid = p->pid;
     int type = p->type;
     struct list_head loc = p->loc;
-    int lower = (p->degree - p->range)%360;
-    if(lower < 0)
-        lower = lower + 360;
-    int upper = (p->degree + p->range)%360;
-    struct rot_lock_t *cursor;
+    int lower = p->degree - p->range;
+    int upper = p->degree + p->range;
+    if(lower < 0) lower = lower + 360;
+    if(upper >= 360) upper = upper - 360;
 
     if(type == TYPE_WRITE) {
-        //soft filter
-        //checks degree, degree+range, degree-range has write lock or not
+        // soft filter
+        // checks degree, degree+range, degree-range has write lock or not
         if((ref_counter[lower] == -1) && (ref_counter[upper] == -1) && (ref_counter[degree] == -1)) {
-            //iterate in reverse order
-            list_for_each_entry_reverse(cursor, &acq_head, loc) {
-                if(rot_lock_t_equals(p, cursor)) {
-                    //take this node
-                    // list_del_entry(cursor);
-                    //break and return
+            struct rot_lock_t *acquired;
+            // iterate in reverse order
+            list_for_each_entry_reverse(acquired, &acq_head, loc) {
+                if(rot_lock_t_equals(p, acquired)) {
+                    // FOUND! delete entry and update ref_counter
+                    int i;
+                    for(i=0; i<=range*2; i++) ref_counter[(lower+i)%360] = 0;
+                    list_del(&acquired->loc);
+                    kfree(acquired);
                     return 1; //success
                 }
             }
         }
     }
     else {
-        //soft filter
-        //checks degree, degree+range, degree-range have read lock
-        if((ref_counter[lower] >0) && (ref_counter[upper] >0) && (ref_counter[degree] > 0)) {
-            list_for_each_entry_reverse(cursor, &acq_head, loc) {
-                if(rot_lock_t_equals(p, cursor)) {
-                    //take this node
-                    // list_del_entry(cursor);
+        // soft filter
+        // checks degree, degree+range, degree-range have read lock
+        if((ref_counter[lower] > 0) && (ref_counter[upper] > 0) && (ref_counter[degree] > 0)) {
+            struct rot_lock_t *acquired;
+            list_for_each_entry_reverse(acquired, &acq_head, loc) {
+                if(rot_lock_t_equals(p, acquired)) {
+                    // FOUND! delete entry and update ref_counter
+                    int i;
+                    for(i=0; i<=range*2; i++) ref_counter[(lower+i)%360]--;
+                    list_del(&acquired->loc);
+                    kfree(acquired);
                     return 1; //success
                 }
             }
