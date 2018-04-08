@@ -9,6 +9,8 @@
 #include<linux/signal.h>
 #include<linux/slab.h>
 
+#include<linux/rotation.h>
+
 
 #define TYPE_READ 1
 #define TYPE_WRITE 2
@@ -295,7 +297,7 @@ static void wake_up_candidate(void) {
                 int lower = pending->degree - pending->range;
                 int can_grab = 1;
                 if(lower < 0) lower += 360;
-                for(i=0; i<(pending->range)*2; i++) {
+                for(i=0; i<=(pending->range)*2; i++) {
                     if(ref_counter[(lower+i)%360] != 0){
                         can_grab = 0;
                         break;
@@ -321,7 +323,7 @@ static void wake_up_candidate(void) {
                 int lower = pending->degree - pending->range;
                 int can_grab = 1;
                 if(lower < 0) lower += 360;
-                for(i=0; i<(pending->range)*2; i++) {
+                for(i=0; i<=(pending->range)*2; i++) {
                     if(ref_counter[(lower+i)%360] < 0){
                         can_grab = 0;
                         break;
@@ -481,4 +483,37 @@ int sys_rotunlock_write(int degree, int range) {
     
     if(success) return 0;
     return -EFAULT;
+}
+
+void exit_rotlock(void) {
+    struct rot_lock_t *rotation_lock, *tmp;
+
+    spin_lock(&rot_spinlock);
+
+    // clean acq list.
+    list_for_each_entry_safe(rotation_lock, tmp, &acq_head, loc) {
+        if(rotation_lock->pid == current->pid) {
+            int i;
+            int lower = rotation_lock->degree - rotation_lock->range;
+            int ref_delta =
+                (rotation_lock->type == TYPE_WRITE) ? 1 : -1;
+            if(lower < 0) lower += 360;
+
+            for(i=0; i<=(rotation_lock->range)*2; i++) {
+                ref_counter[(lower+i)%360] += ref_delta;
+            }
+            list_del(&rotation_lock->loc);
+            kfree(rotation_lock);
+        }
+    }
+
+    // clean pend list.
+    list_for_each_entry_safe(rotation_lock, tmp, &pend_head, loc) {
+        if(rotation_lock->pid == current->pid) {
+            list_del(&rotation_lock->loc);
+            kfree(rotation_lock);
+        }
+    }
+
+    spin_unlock(&rot_spinlock);
 }
