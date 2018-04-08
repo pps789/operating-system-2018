@@ -67,7 +67,7 @@ static int rot_lock_t_has_rotation(struct rot_lock_t *rot_lock) {
  * Otherwise, return 0.
  * You should call this function with rot_spinlock
  */
-static int rot_lock_t_add_into_acq(struct rot_lock_t *p) {
+static void rot_lock_t_add_into_acq(struct rot_lock_t *p) {
     int degree = p->degree;
     int range = p->range;
     int type = p->type;
@@ -86,7 +86,6 @@ static int rot_lock_t_add_into_acq(struct rot_lock_t *p) {
         }
     }
     list_add_tail(&p->loc, &acq_head);
-    return 1;
 }
 
 /*
@@ -231,8 +230,6 @@ static int rot_lock_t_remove(struct rot_lock_t *p) {
     return 0; //fail - nothing happens
 }
 
-
-
 /*
  * This function will find proper lock and wake such process.
  * Call this function AFTER grabbing the rot_spinlock
@@ -346,7 +343,6 @@ static void wake_up_candidate(void) {
     }
 }
 
-
 int sys_set_rotation(int degree) {
     int ret = 0;
     struct rot_lock_t *acq;
@@ -366,15 +362,60 @@ int sys_set_rotation(int degree) {
 }
 
 int sys_rotlock_read(int degree, int range) {
+    struct rot_lock_t *rotation_lock;
+    if(degree < 0 || degree >= 360) return -EINVAL;
+    if(range <= 0 || range >= 180) return -EINVAL;
+
+    rotation_lock = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
+    if(rotation_lock == NULL) return -EFAULT;
+
+    rotation_lock->degree = degree;
+    rotation_lock->range = range;
+    rotation_lock->type = TYPE_READ;
+    rotation_lock->pid = current->pid;
+
+    // At first, just put into pending list.
+    spin_lock(&rot_spinlock);
+    list_add_tail(&rotation_lock->loc, &pend_head);
+    spin_unlock(&rot_spinlock);
+
+    spin_lock(&rot_spinlock);
+    while(1) {
+        // Check if I can grab the lock
+        if(lock_available(rotation_lock)) {
+            // remove from pending list
+            list_del(&rotation_lock->loc);
+            rot_lock_t_add_into_acq(rotation_lock);
+            spin_unlock(&rot_spinlock);
+
+            return 0; // success
+        }
+
+        // For liveness, wake up proper process
+        wake_up_candidate();
+
+        // Go sleep.
+        set_current_state(TASK_INTERRUPTIBLE);
+        spin_unlock(&rot_spinlock);
+        schedule();
+        spin_lock(&rot_spinlock);
+        set_current_state(TASK_RUNNING); // TODO: do we need this?
+    }
 }
 
 int sys_rotlock_write(int degree, int range) {
+    if(degree < 0 || degree >= 360) return -EINVAL;
+    if(range <= 0 || range >= 180) return -EINVAL;
 }
 
 int sys_rotunlock_read(int degree, int range) {
+    if(degree < 0 || degree >= 360) return -EINVAL;
+    if(range <= 0 || range >= 180) return -EINVAL;
 }
 
 int sys_rotunlock_write(int degree, int range) {
+    if(degree < 0 || degree >= 360) return -EINVAL;
+    if(range <= 0 || range >= 180) return -EINVAL;
 }
 
 
