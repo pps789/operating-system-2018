@@ -446,13 +446,39 @@ int sys_rotlock_write(int degree, int range) {
 }
 
 int sys_rotunlock_read(int degree, int range) {
+    struct rot_lock_t rotation_lock;
+    int success;
     if(degree < 0 || degree >= 360) return -EINVAL;
     if(range <= 0 || range >= 180) return -EINVAL;
+
+    rotation_lock.degree = degree;
+    rotation_lock.range = range;
+    rotation_lock.type = TYPE_READ;
+    rotation_lock.pid = current->pid;
+
+    spin_lock(&rot_spinlock);
+    success = rot_lock_t_remove(&rotation_lock);
+    spin_unlock(&rot_spinlock);
+    
+    if(success) return 0;
+    return -EFAULT;
 }
 
 int sys_rotunlock_write(int degree, int range) {
+    struct rot_lock_t rotation_lock;
+    int success;
     if(degree < 0 || degree >= 360) return -EINVAL;
     if(range <= 0 || range >= 180) return -EINVAL;
+
+    rotation_lock.degree = degree;
+    rotation_lock.range = range;
+    rotation_lock.type = TYPE_WRITE;
+    rotation_lock.pid = current->pid;
+
+    spin_lock(&rot_spinlock);
+    success = rot_lock_t_remove(&rotation_lock);
+    spin_unlock(&rot_spinlock);
+    
+    if(success) return 0;
+    return -EFAULT;
 }
-
-
