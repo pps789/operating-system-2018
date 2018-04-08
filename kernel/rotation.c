@@ -187,9 +187,7 @@ static int rot_lock_t_remove(struct rot_lock_t *p) {
     //variables
     int degree = p->degree;
     int range = p->range;
-    pid_t pid = p->pid;
     int type = p->type;
-    struct list_head loc = p->loc;
     int lower = p->degree - p->range;
     int upper = p->degree + p->range;
     if(lower < 0) lower = lower + 360;
@@ -349,7 +347,22 @@ static void wake_up_candidate(void) {
 }
 
 
-int sys_set_rotation(int dgree) {
+int sys_set_rotation(int degree) {
+    int ret = 0;
+    struct rot_lock_t *acq;
+    
+    // validate input value
+    if(degree < 0 || degree >= 360) return -EINVAL;
+
+    spin_lock(&rot_spinlock);
+
+    rotation = degree;
+    wake_up_candidate();
+    list_for_each_entry(acq, &acq_head, loc) ret++;
+    
+    spin_unlock(&rot_spinlock);
+
+    return ret;
 }
 
 int sys_rotlock_read(int degree, int range) {
