@@ -68,11 +68,11 @@ static int rot_lock_t_has_rotation(struct rot_lock_t *rot_lock) {
  * You should call this function with rot_spinlock
  */
 static int rot_lock_t_add_into_acq(struct rot_lock_t *p) {
-	int degree = p->degree;
-	int range = p->range;
-	int type = p->type;
-	int lower = degree - range;
-	if(lower < 0) lower = lower + 360;
+    int degree = p->degree;
+    int range = p->range;
+    int type = p->type;
+    int lower = degree - range;
+    if(lower < 0) lower = lower + 360;
     if(type == TYPE_WRITE) {
         int i;
         for(i=0; i<=range*2; i++) {
@@ -138,7 +138,7 @@ static int lock_available(struct rot_lock_t *p) {
                 immediately = 0;
             }
         }
-        
+
         if(immediately) {
             // if writer CAN grab, should yield
             struct rot_lock_t *pending;
