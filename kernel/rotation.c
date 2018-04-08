@@ -53,6 +53,34 @@ static int rot_lock_t_equals(struct rot_lock_t *f, struct rot_lock_t *s) {
  * Oterwise, return 0.
  * You should call this function with rot_spinlock
  */
+
+static void lock_add_acq(struct rot_lock_t *p) {
+	int degree = p->degree;
+	int range = p->range;
+	int type = p->type;
+	struct list_head loc = p->loc;
+	int lower = (degree - range)%360;
+	if(lower < 0)
+		lower = lower + 360;
+	int upper = (degree + range)%360;
+	int i, j;
+	struct rot_lock_t *data;
+	if(type == TYPE_WRITE) {
+		for(i=0; i<=range*2; i++) {
+			ref_counter[(lower+i)%360] = -1;
+		}
+	}
+	else if(type == TYPE_READ) {
+		for(i=0; i<=range*2; i++) {
+			ref_counter[(lower+i)%360] = ref_counter[(lower+i)%360]+1;
+		}
+	}
+	data = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
+	data = &p;
+	list_add_tail(&loc, &acq_head);
+}
+
+
 static int lock_available(struct rot_lock_t *p) {
     // variables
     int degree = p->degree;
@@ -62,6 +90,8 @@ static int lock_available(struct rot_lock_t *p) {
 
     // lower: 'beginning' degree (inclusive)
     int lower = (degree - range)%360;
+    if(lower<0)
+	    lower = lower+360;
     // upper: 'ending' degree (inclusive)
     int upper = (degree + range)%360;
     // return value
@@ -79,44 +109,21 @@ static int lock_available(struct rot_lock_t *p) {
                 avail = 0;
             }
         }
-
-        // TODO: remove this!
-        if(avail) {
-            //list add to acq_list
-            data = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
-            data = &p;
-            list_add_tail(&loc, &acq_list);
-            do {
-                ref_counter[j] = -1;
-            }
-            while(j != upper);
-        }
-
     }
     else {
         int i;
         for(i=0; i<=range*2; i++){
-            if(ref_counter[(lower+i)%360] >= 0){
+            if(ref_counter[(lower+i)%360] < 0){
                 avail = 0;
             }
         }
-
-        // TODO: remove this!
-        if(avail == true) {
-            list_add_tail(&loc, &acq_list);
-            do {
-                ref_counter[j] = -1;
-            }
-            while (j != upper);
-        }
     }
-
     return avail; // true: 1 false: 0
 }
 
 //this function checks if the same rot_lock_t exists in acq_list
 //if it exists, delete and return 1
-static int lock_exists(struct rot_lock_t *p) {
+static int lock_remove(struct rot_lock_t *p) {
     //variables
     int degree = p->degree;
     int range = p->range;
@@ -152,6 +159,7 @@ static int lock_exists(struct rot_lock_t *p) {
                 if(rot_lock_t_equals(p, cursor)) {
                     //take this node
                     list_del_entry(cursor);
+					kfree(cursor);
                     return 1; //success
                 }
             }
