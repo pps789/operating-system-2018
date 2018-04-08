@@ -404,8 +404,45 @@ int sys_rotlock_read(int degree, int range) {
 }
 
 int sys_rotlock_write(int degree, int range) {
+    struct rot_lock_t *rotation_lock;
     if(degree < 0 || degree >= 360) return -EINVAL;
     if(range <= 0 || range >= 180) return -EINVAL;
+
+    rotation_lock = kmalloc(sizeof(struct rot_lock_t), GFP_KERNEL);
+    if(rotation_lock == NULL) return -EFAULT;
+
+    rotation_lock->degree = degree;
+    rotation_lock->range = range;
+    rotation_lock->type = TYPE_WRITE;
+    rotation_lock->pid = current->pid;
+
+    // At first, just put into pending list.
+    spin_lock(&rot_spinlock);
+    list_add_tail(&rotation_lock->loc, &pend_head);
+    spin_unlock(&rot_spinlock);
+
+    spin_lock(&rot_spinlock);
+    while(1) {
+        // Check if I can grab the lock
+        if(lock_available(rotation_lock)) {
+            // remove from pending list
+            list_del(&rotation_lock->loc);
+            rot_lock_t_add_into_acq(rotation_lock);
+            spin_unlock(&rot_spinlock);
+
+            return 0; // success
+        }
+
+        // For liveness, wake up proper process
+        wake_up_candidate();
+
+        // Go sleep.
+        set_current_state(TASK_INTERRUPTIBLE);
+        spin_unlock(&rot_spinlock);
+        schedule();
+        spin_lock(&rot_spinlock);
+        set_current_state(TASK_RUNNING); // TODO: do we need this?
+    }
 }
 
 int sys_rotunlock_read(int degree, int range) {
