@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/rotation.h>
 
 int main(int argc, char* argv[]) {
   FILE *f;
@@ -9,6 +8,7 @@ int main(int argc, char* argv[]) {
   int num;
   int i;
 	while(1) {
+
     lock = syscall(381, 90, 90);
 		if(lock<0) {
       perror("read lock error\n");
@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
 				  printf(" * ");
 				}
 				i--;
+      }
 		}
     printf("\n");
 		unlock = syscall(383, 90, 90);

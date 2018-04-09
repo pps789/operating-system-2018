@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/rotation.h>
-#include <errono.h>
 int main(int argc, char* argv[]) {
   FILE *f;
   int num = atoi(argv[1]);
