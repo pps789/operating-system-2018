@@ -10,6 +10,11 @@ int main(int argc, char* argv[]) {
   int i;
 	while(1) {
     lock = syscall(381, 90, 90);
+		if(lock<0) {
+      perror("read lock error\n");
+			return 0;
+		}
+
 		f = fopen("integer", "r");
     fscanf(f, "%d", &num);
 		fclose(f);
@@ -26,7 +31,10 @@ int main(int argc, char* argv[]) {
 		}
     printf("\n");
 		unlock = syscall(383, 90, 90);
-		num++;
+		if(unlock<0) {
+      perror("read unlock error\n");
+			return 0;
+		}
 	}
 
   return 0;
