@@ -388,6 +388,7 @@ int sys_rotlock_read(int degree, int range) {
             // remove from pending list
             list_del(&rotation_lock->loc);
             rot_lock_t_add_into_acq(rotation_lock);
+            wake_up_candidate();
             spin_unlock(&rot_spinlock);
 
             return 0; // success
@@ -430,6 +431,7 @@ int sys_rotlock_write(int degree, int range) {
             // remove from pending list
             list_del(&rotation_lock->loc);
             rot_lock_t_add_into_acq(rotation_lock);
+            wake_up_candidate();
             spin_unlock(&rot_spinlock);
 
             return 0; // success
@@ -460,6 +462,7 @@ int sys_rotunlock_read(int degree, int range) {
 
     spin_lock(&rot_spinlock);
     success = rot_lock_t_remove(&rotation_lock);
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
     
     if(success) return 0;
@@ -479,6 +482,7 @@ int sys_rotunlock_write(int degree, int range) {
 
     spin_lock(&rot_spinlock);
     success = rot_lock_t_remove(&rotation_lock);
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
     
     if(success) return 0;
@@ -515,5 +519,6 @@ void exit_rotlock(void) {
         }
     }
 
+    wake_up_candidate(); // TODO: ???
     spin_unlock(&rot_spinlock);
 }
