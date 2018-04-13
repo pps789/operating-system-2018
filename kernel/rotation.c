@@ -108,6 +108,7 @@ static int lock_available(struct rot_lock_t *p) {
 
     if(!rot_lock_t_has_rotation(p)) return 0;
 
+    // first, check ref_counter.
     if(type == TYPE_WRITE) {
         // if type is WRITE, all value of ref_counter in range should be 0
         int i;
@@ -265,7 +266,7 @@ static void wake_up_candidate(void) {
                 int lower = pending->degree - pending->range;
                 int can_grab = 1;
                 if(lower < 0) lower += 360;
-                for(i=0; i<(pending->range)*2; i++) {
+                for(i=0; i<=(pending->range)*2; i++) {
                     if(ref_counter[(lower+i)%360] < 0){
                         can_grab = 0;
                         break;
@@ -402,7 +403,7 @@ int sys_rotlock_read(int degree, int range) {
         spin_unlock(&rot_spinlock);
         schedule();
         spin_lock(&rot_spinlock);
-        set_current_state(TASK_RUNNING); // TODO: do we need this?
+        set_current_state(TASK_RUNNING);
     }
 }
 
@@ -445,7 +446,7 @@ int sys_rotlock_write(int degree, int range) {
         spin_unlock(&rot_spinlock);
         schedule();
         spin_lock(&rot_spinlock);
-        set_current_state(TASK_RUNNING); // TODO: do we need this?
+        set_current_state(TASK_RUNNING);
     }
 }
 
@@ -519,6 +520,6 @@ void exit_rotlock(void) {
         }
     }
 
-    wake_up_candidate(); // TODO: ???
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
 }
