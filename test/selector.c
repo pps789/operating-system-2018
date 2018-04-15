@@ -3,19 +3,19 @@
 #include <linux/rotation.h>
 
 int main(int argc, char* argv[]) {
-  FILE *f;
-  int num = atoi(argv[1]);
-  int lock;
-  int unlock;
+	FILE *f;
+	int num = atoi(argv[1]);
+	int lock;
+	int unlock;
 	while(1) {
-    lock = syscall(382, 90, 90);
-	  f = fopen("integer", "w");
-	  fprintf(f, "%d", num);
-		printf("selector: %d", num);
+		lock = syscall(382, 90, 90);
+		f = fopen("integer", "w");
+		fprintf(f, "%d\n", num);
+		printf("selector: %d\n", num);
 		fclose(f);
 		unlock = syscall(385, 90, 90);
 		num++;
-  }
-  return 0;
+	}
+	return 0;
 }
 
