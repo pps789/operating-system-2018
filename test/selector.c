@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/rotation.h>
+#include <unistd.h>
 int main(int argc, char* argv[]) {
   FILE *f;
   int num = atoi(argv[1]);
   int lock;
   int unlock;
 	while(1) {
+    sleep(2);
     lock = syscall(382, 90, 90);
     if(lock<0) {
       perror("write lock error\n");
