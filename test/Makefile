@@ -1,5 +1,8 @@
 %.o: %.c
 	arm-linux-gnueabi-gcc -c -I../include -o $@ $<
 
-all: selector.o
-	arm-linux-gnueabi-gcc -I../include -o selector selector.o
+all: policy.o
+	arm-linux-gnueabi-gcc -I../include -o policy policy.o
+
+clean: 
+	rm -rf *.o 

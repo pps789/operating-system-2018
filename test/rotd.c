@@ -26,9 +26,8 @@ void sensor()
 	int degree = 0;
 	while (notFinished) {
 		degree = (degree + 30) % 360;
-		printf("current degree: %d\n", degree);
 		syscall(SYSCALL_SET_ROTATION, degree);
-		sleep(2);
+		sleep(1);
 	}
 }
 
