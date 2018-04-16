@@ -471,7 +471,7 @@ int sys_set_rotation(int degree) {
 
     rotation = degree;
     ret = wake_up_candidates();
-    
+
     spin_unlock(&rot_spinlock);
 
     if(ret < 0) return -EFAULT; // unreachable?
@@ -515,7 +515,19 @@ int sys_rotlock_read(int degree, int range) {
         // Go sleep.
         set_current_state(TASK_INTERRUPTIBLE);
         spin_unlock(&rot_spinlock);
+
         schedule();
+        if(signal_pending(current)) {
+            // 'Undo' pending queue.
+            spin_lock(&rot_spinlock);
+            list_del(&rotation_lock->loc);
+            kfree(rotation_lock);
+            wake_up_candidate();
+            spin_unlock(&rot_spinlock);
+
+            return -ERESTARTSYS;
+        }
+
         spin_lock(&rot_spinlock);
         set_current_state(TASK_RUNNING);
     }
@@ -558,7 +570,19 @@ int sys_rotlock_write(int degree, int range) {
         // Go sleep.
         set_current_state(TASK_INTERRUPTIBLE);
         spin_unlock(&rot_spinlock);
+
         schedule();
+        if(signal_pending(current)) {
+            // 'Undo' pending queue.
+            spin_lock(&rot_spinlock);
+            list_del(&rotation_lock->loc);
+            kfree(rotation_lock);
+            wake_up_candidate();
+            spin_unlock(&rot_spinlock);
+
+            return -ERESTARTSYS;
+        }
+
         spin_lock(&rot_spinlock);
         set_current_state(TASK_RUNNING);
     }
