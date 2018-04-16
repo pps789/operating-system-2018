@@ -108,6 +108,7 @@ static int lock_available(struct rot_lock_t *p) {
 
     if(!rot_lock_t_has_rotation(p)) return 0;
 
+    // first, check ref_counter.
     if(type == TYPE_WRITE) {
         // if type is WRITE, all value of ref_counter in range should be 0
         int i;
@@ -265,7 +266,7 @@ static void wake_up_candidate(void) {
                 int lower = pending->degree - pending->range;
                 int can_grab = 1;
                 if(lower < 0) lower += 360;
-                for(i=0; i<(pending->range)*2; i++) {
+                for(i=0; i<=(pending->range)*2; i++) {
                     if(ref_counter[(lower+i)%360] < 0){
                         can_grab = 0;
                         break;
@@ -345,9 +346,123 @@ static void wake_up_candidate(void) {
     }
 }
 
+/*
+ * similar function; but wake multiple process
+ * success: return #process
+ * fail: return -1
+ */
+int wake_up_candidates(void) {
+    // Writer already grabbed a lock.
+    if(ref_counter[rotation] < 0) return 0;
+
+    // Reader already grabbed a lock.
+    else if(ref_counter[rotation] > 0) {
+        // Check another writer is pending...
+        int writer_exists = 0;
+        int ret = 0;
+        struct rot_lock_t *pending;
+        list_for_each_entry(pending, &pend_head, loc) {
+            if(pending->type == TYPE_WRITE
+                    && rot_lock_t_has_rotation(pending)) {
+                writer_exists = 1;
+                break;
+            }
+        }
+
+        // Prevent writer starvation.
+        if(writer_exists) return 0;
+
+        // Now we can wake readers!
+        list_for_each_entry(pending, &pend_head, loc) {
+            if(pending->type == TYPE_READ
+                    && rot_lock_t_has_rotation(pending)) {
+                // This pending lock can grab lock iff ref_counter >= 0.
+                int i;
+                int lower = pending->degree - pending->range;
+                int can_grab = 1;
+                if(lower < 0) lower += 360;
+                for(i=0; i<=(pending->range)*2; i++) {
+                    if(ref_counter[(lower+i)%360] < 0){
+                        can_grab = 0;
+                        break;
+                    }
+                }
+
+                // Found proper pending lock!
+                if(can_grab) {
+                    struct task_struct *target = pid_task(find_vpid(pending->pid), PIDTYPE_PID);
+                    if(target == NULL) continue;
+                    wake_up_process(target);
+                    ret++;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    // Nobody grabbed a lock.
+    else {
+        // Find proper writer first, and try to find reader.
+        int ret = 0;
+        struct rot_lock_t *pending;
+        list_for_each_entry(pending, &pend_head, loc) {
+            if(pending->type == TYPE_WRITE
+                    && rot_lock_t_has_rotation(pending)) {
+                // Writer can grab iff ref_counter == 0.
+                int i;
+                int lower = pending->degree - pending->range;
+                int can_grab = 1;
+                if(lower < 0) lower += 360;
+                for(i=0; i<=(pending->range)*2; i++) {
+                    if(ref_counter[(lower+i)%360] != 0){
+                        can_grab = 0;
+                        break;
+                    }
+                }
+
+                // Found writer!
+                if(can_grab) {
+                    struct task_struct *target = pid_task(find_vpid(pending->pid), PIDTYPE_PID);
+                    if(target == NULL) continue;
+                    wake_up_process(target);
+                    return 1;
+                }
+            }
+        }
+
+        // Now find proper reader.
+        list_for_each_entry(pending, &pend_head, loc) {
+            if(pending->type == TYPE_READ
+                    && rot_lock_t_has_rotation(pending)) {
+                // Reader can grab iff ref_counter >= 0.
+                int i;
+                int lower = pending->degree - pending->range;
+                int can_grab = 1;
+                if(lower < 0) lower += 360;
+                for(i=0; i<=(pending->range)*2; i++) {
+                    if(ref_counter[(lower+i)%360] < 0){
+                        can_grab = 0;
+                        break;
+                    }
+                }
+
+                // Found reader!
+                if(can_grab) {
+                    struct task_struct *target = pid_task(find_vpid(pending->pid), PIDTYPE_PID);
+                    if(target == NULL) continue;
+                    wake_up_process(target);
+                    ret++;
+                }
+            }
+        }
+
+        return ret;
+    }
+}
+
 int sys_set_rotation(int degree) {
-    int ret = 0;
-    struct rot_lock_t *acq;
+    int ret;
     
     // validate input value
     if(degree < 0 || degree >= 360) return -EINVAL;
@@ -355,11 +470,11 @@ int sys_set_rotation(int degree) {
     spin_lock(&rot_spinlock);
 
     rotation = degree;
-    wake_up_candidate();
-    list_for_each_entry(acq, &acq_head, loc) ret++;
+    ret = wake_up_candidates();
     
     spin_unlock(&rot_spinlock);
 
+    if(ret < 0) return -EFAULT; // unreachable?
     return ret;
 }
 
@@ -388,6 +503,7 @@ int sys_rotlock_read(int degree, int range) {
             // remove from pending list
             list_del(&rotation_lock->loc);
             rot_lock_t_add_into_acq(rotation_lock);
+            wake_up_candidate();
             spin_unlock(&rot_spinlock);
 
             return 0; // success
@@ -401,7 +517,7 @@ int sys_rotlock_read(int degree, int range) {
         spin_unlock(&rot_spinlock);
         schedule();
         spin_lock(&rot_spinlock);
-        set_current_state(TASK_RUNNING); // TODO: do we need this?
+        set_current_state(TASK_RUNNING);
     }
 }
 
@@ -430,6 +546,7 @@ int sys_rotlock_write(int degree, int range) {
             // remove from pending list
             list_del(&rotation_lock->loc);
             rot_lock_t_add_into_acq(rotation_lock);
+            wake_up_candidate();
             spin_unlock(&rot_spinlock);
 
             return 0; // success
@@ -443,7 +560,7 @@ int sys_rotlock_write(int degree, int range) {
         spin_unlock(&rot_spinlock);
         schedule();
         spin_lock(&rot_spinlock);
-        set_current_state(TASK_RUNNING); // TODO: do we need this?
+        set_current_state(TASK_RUNNING);
     }
 }
 
@@ -460,6 +577,7 @@ int sys_rotunlock_read(int degree, int range) {
 
     spin_lock(&rot_spinlock);
     success = rot_lock_t_remove(&rotation_lock);
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
     
     if(success) return 0;
@@ -479,6 +597,7 @@ int sys_rotunlock_write(int degree, int range) {
 
     spin_lock(&rot_spinlock);
     success = rot_lock_t_remove(&rotation_lock);
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
     
     if(success) return 0;
@@ -515,5 +634,6 @@ void exit_rotlock(void) {
         }
     }
 
+    wake_up_candidate();
     spin_unlock(&rot_spinlock);
 }

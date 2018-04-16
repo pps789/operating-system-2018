@@ -1,14 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <linux/rotation.h>
 #include <unistd.h>
 int main(int argc, char* argv[]) {
-  FILE *f;
-  int num = atoi(argv[1]);
-  int lock;
-  int unlock;
+	FILE *f;
+	int num = atoi(argv[1]);
+	int lock;
+	int unlock;
+	if (argv[0] == NULL) {
+    perror("need number\n");
+	}
 	while(1) {
-    sleep(2);
     lock = syscall(382, 90, 90);
     if(lock<0) {
       perror("write lock error\n");
@@ -17,6 +20,8 @@ int main(int argc, char* argv[]) {
 
 		f = fopen("integer", "w");
 	  fprintf(f, "%d", num);
+		f = fopen("integer", "w");
+		fprintf(f, "%d", num);
 		printf("selector: %d\n", num);
 		fclose(f);
 		
@@ -27,7 +32,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		num++;
-  }
-  return 0;
+	}
+	return 0;
 }
 
