@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	while(1) {
 		lock = syscall(382, 90, 90);
 		f = fopen("integer", "w");
-		fprintf(f, "%d\n", num);
+		fprintf(f, "%d", num);
 		printf("selector: %d\n", num);
 		fclose(f);
 		unlock = syscall(385, 90, 90);

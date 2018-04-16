@@ -1,8 +1,8 @@
 %.o: %.c
 	arm-linux-gnueabi-gcc -c -I../include -o $@ $<
 
-all: policy.o
-	arm-linux-gnueabi-gcc -I../include -o policy policy.o
+all: trial.o
+	arm-linux-gnueabi-gcc -I../include -o trial trial.o
 
 clean: 
 	rm -rf *.o 
