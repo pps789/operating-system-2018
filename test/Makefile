@@ -7,7 +7,7 @@ all : $(OBJ)
 test : $(TESTER)
 
 rotd : rotd.o
-	arm-linux-guneabi-gcc -I../include -o rotd rotd.o
+	arm-linux-gnueabi-gcc -I../include -o rotd rotd.o
 
 selector : selector.o
 	arm-linux-gnueabi-gcc -I../include -o selector selector.o
