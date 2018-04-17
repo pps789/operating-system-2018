@@ -1,2 +1,6 @@
 *.o
-test
+tester
+policy
+trial
+selector
+rotd

@@ -15,7 +15,6 @@ selector : selector.o
 trial: trial.o
 	arm-linux-gnueabi-gcc -I../include -o trial trial.o
 
-
 rlocker : rlocker.o
 	arm-linux-gnueabi-gcc -I../include -o rlocker rlocker.o
 
