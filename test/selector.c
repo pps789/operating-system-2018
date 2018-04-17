@@ -13,13 +13,13 @@ int main(int argc, char* argv[]) {
 	int check;
 	// check input
 	if (argc != 2) {
-    perror("input error");
+    printf("input error\n");
 		return 1;
 	}
 	// check input is digit
 	for(i=0;i<strlen(argv[1]);i++) {
     if (argv[1][i] < '0' || argv[1][i] > '9') {
-			perror("input is not digit");
+			printf("input is not digit\n");
 			return 1;
 		}
 	}
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     // file open and check error
 		f = fopen("integer", "w");
 		if (f == NULL) {
-      perror("file open error");
+      printf("file open error\n");
 			return 1;
 		}
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
 		// file close and check error
 		check = fclose(f);
 		if (check != 0) {
-      perror("file close error");
+      printf("file close error\n");
 			return 1;
 		}
 	

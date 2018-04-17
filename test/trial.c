@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	int check;
 	// check input
 	if (argc != 2) {
-    perror("input error");
+    printf("input error\n");
 		return 1;
 	}
 
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     // file open and check error
 		f = fopen("integer", "r");
 		if (f == NULL) {
-      perror("file open error");
+      printf("file open error\n");
 			return 1;
 		}
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     // file close and check error
 		check = fclose(f);
 		if (check != 0) {
-      perror("file close error");
+      printf("file close error\n");
 			return 1;
 		}
 
