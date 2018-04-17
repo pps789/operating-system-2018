@@ -24,14 +24,14 @@ Project1
 > 4. Make five system calls, `sys_set_rotation`, `sys_rotlock_read`, `sys_rotlock_write`, `sys_rotunlock_read` and `sys_rotunlock_write` with other supplementary functions.
 
 > ## Implementation
-	`spin_lock()` and `spin_unlock()` is used to lock thread during five system calls are executed.
+> 0. `spin_lock()` and `spin_unlock()` is used to lock thread during five system calls are executed.
 > 1. set rotation
 >	Change the current rotational degree to given degree, and call function `wake_up_candidates()` to wake up appropriate process.
 > 2. read & write lock
 >	Depending on given information about degree, range and lock type, check if lock can acquire certain degree by calling `lock_available()` function. If its available, call `rot_lock_t_add_into_acq()` function to acquire lock. `rot_lock_t_add_into_acq()` function manipulates information of `ref_counter` and add given `rot_lock_t` to `acq_list`. Else, given `rot_lock_t` enters sleep state, and added to `pend_list`. 
 > 3. read & write unlock
 >	Depending on given information about degree, range, and lock type, check if `rot_lock_t` equal to given information exists in `acq_list`. If exists, than remove it from `acq_list` and manipulates information of `ref_counter`. All these works are done by `rot_lock_remove()` function. 
->	Everytime system call is completed, `wake_up_candidate()` function is called to run next process.
+> 4. Everytime system call is completed, `wake_up_candidate()` function is called to run next process.
 
 > ## Lessons learned
 > 1. Debugging is very very critical part of kernel coding. Do not ignore any doubtful points.
