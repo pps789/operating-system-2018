@@ -1,6 +1,6 @@
 OS-team6
 ========
-Project1
+Project2
 --------
 
 > ## Introduction
@@ -34,7 +34,7 @@ Project1
 > 3. read & write unlock
 >	Depending on given information about degree, range, and lock type, check if `rot_lock_t` equal to given information exists in `acq_list`. If exists, than remove it from `acq_list` and manipulates information of `ref_counter`. All these works are done by `rot_lock_remove()` function. 
 > 4. Everytime system call is completed, `wake_up_candidate()` function is called to run next process.
-> 5. `exit_rotlock` cleans `acq_list` and `pend_list` when process terminates.
+> 5. `exit_rotlock()` cleans `acq_list` and `pend_list` when process terminates.
 
 > ## Lessons learned
 > 1. Debugging is very very critical part of kernel coding. Do not ignore any doubtful points.
