@@ -358,6 +358,13 @@ struct rt_rq {
 #endif
 };
 
+struct wrr_rq {
+    unsigned int wrr_nr_running; // size of run queue
+    struct rq *rq; // pointer to rq
+    struct list_head wrr_rq_list; // list of current run queue
+    unsigned long wrr_weight_total; // total weight of current run queue
+};
+
 #ifdef CONFIG_SMP
 
 /*
@@ -422,6 +429,7 @@ struct rq {
 
 	struct cfs_rq cfs;
 	struct rt_rq rt;
+    struct wrr_rq wrr;
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
 	/* list of leaf cfs_rq on this cpu: */
