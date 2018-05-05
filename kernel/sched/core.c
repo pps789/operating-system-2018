@@ -90,6 +90,16 @@
 #define CREATE_TRACE_POINTS
 #include <trace/events/sched.h>
 
+int sched_setweight(pid_t pid, int weight)
+{
+    return 0;
+}
+
+int sched_getweight(pid_t pid)
+{
+    return 0;
+}
+
 void start_bandwidth_timer(struct hrtimer *period_timer, ktime_t period)
 {
 	unsigned long delta;
