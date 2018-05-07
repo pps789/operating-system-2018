@@ -1,9 +1,11 @@
 #include <linux/slab.h>
-#include <uapi/asm-generic/errno-base.h>
-#include <linux/irq_work.h>
-#include <sched.h>
+#include <linux/sched.h>
+#include <linux/spinlock.h>
+#include <linux/jiffies.h>
+#include "sched.h"
 
 #define LB_INTERVAL 2*HZ
+
 
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
@@ -25,17 +27,42 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
 }
 
 
-//load balancing
-void wrr_trigger_load_balance(struct rq *rq, int cpu) {
+// load balancing
+static void wrr_load_balance(void) {
+    // TODO: perform LB
 }
-statid void wrr_load_balance() {
+
+// jiffies of NEXT balance time
+static unsigned long wrr_next_balance;
+static DEFINE_SPINLOCK(wrr_balance_lock);
+
+void wrr_trigger_load_balance(void) {
+    if (!time_after_eq(jiffies, wrr_next_balance)) return;
+
+    // for now, we should do load balancing
+    spin_lock(&wrr_balance_lock);
+
+    if (!time_after_eq(jiffies, wrr_next_balance)) {
+        // LB already performed.
+        spin_unlock(&wrr_balance_lock);
+        return;
+    }
+
+    // before LB, set timeout.
+    wrr_next_balance = jiffies + LB_INTERVAL;
+    
+    spin_unlock(&wrr_balance_lock);
+
+    wrr_load_balance();
 }
-//struct
+
+// our sched_class struct
 const struct sched_class wrr_sched_class = {
-	.next = ,
+	// .next = ,
 	.enqueue_task 		= enqueue_task_wrr,
 	.dequeue_task 		= dequeue_task_wrr,
 	.yield_task 		= yield_task_wrr,
 	.check_preempt_curr	= check_preempt_curr_wrr,
 	.pick_next_task		= pick_next_task_wrr,
-	.put_prev_task 		= put_prev_task_wrr,
+	// .put_prev_task 		= put_prev_task_wrr,
+};
