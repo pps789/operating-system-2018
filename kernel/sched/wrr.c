@@ -11,8 +11,8 @@ void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
 
 }
 
-void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
-	wrr_se->time_slice = mecs_to_jiffies(wrr_se->weight * 10)
+static void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
+    wrr_se->time_slice = mecs_to_jiffies(wrr_se->weight * 10);
 }
 
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
@@ -70,7 +70,7 @@ static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int fla
 }
 
 
-static task_struct *pick_next_task_wrr(struct rq *rq) {
+static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
 static void set_curr_task_wrr(struct rq *rq) {
@@ -148,7 +148,7 @@ const struct sched_class wrr_sched_class = {
 	.pick_next_task		= pick_next_task_wrr,
 	.put_prev_task 		= put_prev_task_wrr,
 	.set_curr_task		= set_curr_task_wrr,
-	.task_tick_wrr		= set_task_tick_wrr,
+	.task_tick_wrr		= task_tick_wrr,
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
 };
