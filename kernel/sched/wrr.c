@@ -16,6 +16,9 @@ static void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
 }
 
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
+    struct wrr_rq *wrr_rq = rq->wrr;
+    if (list_empty(&wrr_rq->wrr_rq_list)) return NULL;
+    return list_first_entry(&wrr_rq->wrr_rq_list)
 }
 
 void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
@@ -37,7 +40,7 @@ static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 	inc_nr_running(rq);
 }
 
-void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
+static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
 	list_del_rcu(&wrr_se->run_list);
 	(rq->wrr.wrr_nr_running)--;
 
@@ -67,10 +70,6 @@ static void yield_task_wrr(struct rq *rq) {
 }
 
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
-}
-
-
-static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
 static void set_curr_task_wrr(struct rq *rq) {
