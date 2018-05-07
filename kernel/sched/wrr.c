@@ -25,7 +25,9 @@ static struct task_struct *pick_next_task_wrr(struct rq *rq) {
     else {
         struct sched_wrr_entity *wrr_se
             = list_first_entry(&wrr_rq->wrr_rq_list, struct sched_wrr_entity, run_list);
-        return wrr_task_of(wrr_se);
+        struct task_struct *task = wrr_task_of(wrr_se);
+        set_time_slice_wrr(wrr_se);
+        return task;
     }
 }
 
@@ -74,6 +76,7 @@ static void yield_task_wrr(struct rq *rq) {
 }
 
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
+    // nothing to do.
 }
 
 static void set_curr_task_wrr(struct rq *rq) {
@@ -81,6 +84,12 @@ static void set_curr_task_wrr(struct rq *rq) {
 
 static void put_prev_task_wrr(struct rq *rq, struct task_struct *prev) {
 }
+
+#ifdef CONFIG_SMP
+
+static int find_lowest_rq(struct task_struct *task)
+
+#endif /* CONFIG_SMP */
 
 static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
     struct sched_wrr_entity *wrr_se = &p->wrr;
