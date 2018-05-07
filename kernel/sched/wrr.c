@@ -16,8 +16,12 @@ void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
-void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-	set_time_slice_wrr(wrr_se);
+static inline int on_wrr_rq(struct sched_wrr_entity *wrr_se) {
+	return !list_empty(&wrr_se->run_list);
+}
+
+static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
+	//set_time_slice_wrr(wrr_se);
 	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.queue);
 	(rq->wrr.wrr_nr_running)++;
 	//TODO: if lock is needed, please add another function to lock
@@ -33,7 +37,7 @@ static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 	enque_wrr_entity(rq, wrr_se);
 	inc_nr_running(rq);
 }
-void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
+static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
 	list_del_rcu(&wrr_se->run_list);
 	(rq->wrr.wrr_nr_running)--;
 
@@ -49,14 +53,14 @@ static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 
 	dec_nr_running(rq);
 }
-static void requeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
+
+static void requeue_task_wrr(struct rq *rq) {
+	struct wrr_rq *wrr_rq = &rq->wrr;
+	list_rotate_left(&wrr_rq->wrr_rq_list);
 }
+
 static void yield_task_wrr(struct rq *rq) {
-	struct sched_wrr_entity *wrr_se = &rq->curr->wrr;
-	
-	//reset rest of the time slice
-	set_time_slice_wrr(wrr_se);
-	list_move_tail(&wrr_se->run_list, &rq->wrr.queue);
+	requeue_task_wrr(rq, rq->curr);
 }
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
 }
