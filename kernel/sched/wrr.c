@@ -9,11 +9,15 @@ void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
 
 }
 
+void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
+	wrr_se->time_slice = mecs_to_jiffies(wrr_se->weight * 10)
+}
+
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
 void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-	wrr_se->time_slice = mecs_to_jiffies(wrr_se->weight * 10);
+	set_time_slice_wrr(wrr_se);
 	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.queue);
 	(rq->wrr.wrr_nr_running)++;
 	//TODO: if lock is needed, please add another function to lock
@@ -48,6 +52,11 @@ static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 static void requeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 }
 static void yield_task_wrr(struct rq *rq) {
+	struct sched_wrr_entity *wrr_se = &rq->curr->wrr;
+	
+	//reset rest of the time slice
+	set_time_slice_wrr(wrr_se);
+	list_move_tail(&wrr_se->run_list, &rq->wrr.queue);
 }
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
 }
