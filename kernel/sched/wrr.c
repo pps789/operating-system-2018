@@ -87,7 +87,46 @@ static void put_prev_task_wrr(struct rq *rq, struct task_struct *prev) {
 
 #ifdef CONFIG_SMP
 
-static int find_lowest_rq(struct task_struct *task)
+static int find_lowest_rq(struct task_struct *p) {
+    int cpu, ret = -1;
+    unsigned long min_weight;
+
+    for_each_online_cpu(cpu) {
+        struct rq *rq = cpu_rq(cpu);
+        struct wrr_rq *wrr_rq = &rq->wrr;
+        if(ret == -1 ||
+                (wrr_rq->wrr_weight_total < min_weight &&
+                 cpumask_test_cpu(cpu, tsk_cpus_allowed(p)))) {
+            ret = cpu;
+            min_weight = wrr_rq->wrr_weight_total;
+        }
+    }
+
+    return ret;
+}
+
+static int select_task_rq_wrr(struct task_struct *p, int sd_flag, int flags) {
+	struct rq *rq;
+	int cpu, target;
+
+	cpu = task_cpu(p);
+
+	if (p->nr_cpus_allowed == 1)
+        return cpu;
+
+	rq = cpu_rq(cpu);
+
+	rcu_read_lock();
+
+    target = find_lowest_rq(p);
+
+    if (target != -1)
+        cpu = target;
+
+	rcu_read_unlock();
+
+	return cpu;
+}
 
 #endif /* CONFIG_SMP */
 
@@ -160,6 +199,7 @@ const struct sched_class wrr_sched_class = {
 	.put_prev_task 		= put_prev_task_wrr,
 
 #ifdef CONFIG_SMP
+    .select_task_rq     = select_task_rq_wrr,
 #endif
 
 	.set_curr_task		= set_curr_task_wrr,
