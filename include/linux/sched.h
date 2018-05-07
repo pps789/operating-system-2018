@@ -1058,6 +1058,7 @@ struct sched_wrr_entity {
     struct list_head run_list;
     unsigned int time_slice;
     unsigned int weight;
+    struct wrr_rq *wrr_rq;
 };
 
 struct rcu_node;

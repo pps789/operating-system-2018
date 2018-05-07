@@ -2,6 +2,7 @@
 #include <linux/sched.h>
 #include <linux/spinlock.h>
 #include <linux/jiffies.h>
+#include <linux/list.h>
 #include "sched.h"
 
 #define LB_INTERVAL 2*HZ
@@ -23,7 +24,28 @@ static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int fla
 
 static void set_curr_task_wrr(struct rq *rq) {
 }
+
 static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
+    struct sched_wrr_entity *wrr_se = &p->wrr;
+    struct wrr_rq *wrr_rq = wrr_se->wrr_rq;
+
+    // TODO: need this?
+    if (p->policy != SCHED_WRR)
+        return;
+
+    if (--wrr_se->time_slice)
+        return;
+
+    // now, p spent all its time_slice.
+
+    if (wrr_rq->wrr_nr_running > 1) {
+        requeue_task_wrr(rq, p, 0);
+        set_tsk_need_resched(p);
+    }
+    else {
+        // if p is the only one task of this cpu, simply refill the time_slice.
+        set_time_slice_wrr(wrr_se);
+    }
 }
 
 
