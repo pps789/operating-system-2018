@@ -6,19 +6,38 @@
 #define LB_INTERVAL 2*HZ
 
 void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
+
 }
+
+unsigned wrr_set_time_slice(struct sched_wrr_entity *wrr_se) {
+	wrr_se->time_slice = msecs_to_jiffies(wrr_se->weight * 10);
+}
+
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
-static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flag) {
+static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
+	struct sched_wrr_entity *wrr_se = &p->rt;
+	unsigned int weight;
+	if(flags & ENQUEUE_WAKEUP)
+		wrr_se->timeout = 0;
+	wrr_set_time_slice(wrr_se);
+	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.queue);
+	(rq->wrr.wrr_nr_running)++;
+	//TODO: if lock is needed, please add another function to lock
+	//wrr before reading weight value
+	rq->wrr.wrr_weight_total += wrr_se->weight;
+	inc_nr_running(rq);
 }
-static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flag) {
+static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
+	struct sched_rt_entity *rt_se = &p->rt;
+	
 }
-static void requeue_task_wrr(struct rq *rq, struct task_struct *p, int flag) {
+static void requeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 }
 static void yield_task_wrr(struct rq *rq) {
 }
-static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flag) {
+static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
 }
 
 static task_struct *pick_next_task_wrr(struct rq *rq) {
