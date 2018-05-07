@@ -12,61 +12,65 @@ void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
 }
 
 static void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
-    wrr_se->time_slice = mecs_to_jiffies(wrr_se->weight * 10);
+    wrr_se->time_slice = msecs_to_jiffies(wrr_se->weight * 10);
+}
+
+static inline struct task_struct *wrr_task_of(struct sched_wrr_entity *wrr_se) {
+    return container_of(wrr_se, struct task_struct, wrr);
 }
 
 static struct task_struct *pick_next_task_wrr(struct rq *rq) {
-    struct wrr_rq *wrr_rq = rq->wrr;
+    struct wrr_rq *wrr_rq = &rq->wrr;
     if (list_empty(&wrr_rq->wrr_rq_list)) return NULL;
-    return list_first_entry(&wrr_rq->wrr_rq_list)
+    else {
+        struct sched_wrr_entity *wrr_se
+            = list_first_entry(&wrr_rq->wrr_rq_list, struct sched_wrr_entity, run_list);
+        return wrr_task_of(wrr_se);
+    }
 }
 
-void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-	set_time_slice_wrr(wrr_se);
-	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.queue);
+static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
+	//set_time_slice_wrr(wrr_se);
+    // TODO: do we need RCU?
+	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
 	(rq->wrr.wrr_nr_running)++;
+
 	// TODO: if lock is needed, please add another function to lock
 	// wrr before reading weight value
 	rq->wrr.wrr_weight_total += wrr_se->weight;
 }
 
 static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
-	struct sched_wrr_entity *wrr_se = &p->rt;
+	struct sched_wrr_entity *wrr_se = &p->wrr;
 
-	if(flags & ENQUEUE_WAKEUP)
-		wrr_se->timeout = 0;
-
-	enque_wrr_entity(rq, wrr_se);
+	enqueue_wrr_entity(rq, wrr_se);
 	inc_nr_running(rq);
 }
 
 static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
+    // TODO: do we need RCU?
 	list_del_rcu(&wrr_se->run_list);
 	(rq->wrr.wrr_nr_running)--;
 
 	// TODO: if lock is needed, please add another function to lock
 	// wrr before reading weight value
-	rq->wrr.total_weight -= wrr_se->weight;
+	rq->wrr.wrr_weight_total -= wrr_se->weight;
 }
 
 static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
-	struct sched_wrr_entity *wrr_se = &p->rt;
+	struct sched_wrr_entity *wrr_se = &p->wrr;
 	
-	update_curr_wrr(rq);
 	dequeue_wrr_entity(rq, wrr_se);
-
 	dec_nr_running(rq);
 }
 
-static void requeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
+static void requeue_task_wrr(struct rq *rq) {
+	struct wrr_rq *wrr_rq = &rq->wrr;
+	list_rotate_left(&wrr_rq->wrr_rq_list);
 }
 
 static void yield_task_wrr(struct rq *rq) {
-	struct sched_wrr_entity *wrr_se = &rq->curr->wrr;
-	
-	//reset rest of the time slice
-	set_time_slice_wrr(wrr_se);
-	list_move_tail(&wrr_se->run_list, &rq->wrr.queue);
+	requeue_task_wrr(rq);
 }
 
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
@@ -75,7 +79,7 @@ static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int fla
 static void set_curr_task_wrr(struct rq *rq) {
 }
 
-static void put_prev_task_wrr(struct rq *rq) {
+static void put_prev_task_wrr(struct rq *rq, struct task_struct *prev) {
 }
 
 static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
@@ -92,7 +96,7 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
     // now, p spent all its time_slice.
 
     if (wrr_rq->wrr_nr_running > 1) {
-        requeue_task_wrr(rq, p, 0);
+        requeue_task_wrr(rq);
         set_tsk_need_resched(p);
     }
     else {
@@ -141,13 +145,16 @@ const struct sched_class wrr_sched_class = {
 	// .next = ,
 	.enqueue_task 		= enqueue_task_wrr,
 	.dequeue_task 		= dequeue_task_wrr,
-	.requeue_task		= requeue_task_wrr,
 	.yield_task 		= yield_task_wrr,
 	.check_preempt_curr	= check_preempt_curr_wrr,
 	.pick_next_task		= pick_next_task_wrr,
 	.put_prev_task 		= put_prev_task_wrr,
+
+#ifdef CONFIG_SMP
+#endif
+
 	.set_curr_task		= set_curr_task_wrr,
-	.task_tick_wrr		= task_tick_wrr,
+	.task_tick		= task_tick_wrr,
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
 };
