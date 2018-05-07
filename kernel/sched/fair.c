@@ -7533,7 +7533,7 @@ static void switched_to_fair(struct rq *rq, struct task_struct *p)
 }
 
 /* Account for a task changing its policy or group.
- *
+
  * This routine is mostly called to set cfs_rq->curr field when a task
  * migrates between groups/classes.
  */

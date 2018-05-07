@@ -74,9 +74,17 @@ static void put_prev_task_wrr(struct rq *rq) {
 static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
 }
 
-static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
+static void switched_from_wrr(struct rq *rq, struct task_struct *p) {
+	if(!p->on_rq || rq->wrr.wrr_nr_running)
+		return;
 }
-static void switched_to_wrr(struct rq *this_rq, struct task_struct *task) {
+static void switched_to_wrr(struct rq *rq, struct task_struct *p) {
+	if(!p->se.on_rq)
+		return;
+	//we need to preempt first, but we don't
+	struct sched_wrr_entity *wrr_entity = &p->wrr;
+	wrr_entity->task = p;
+	//TODO: have to set weight of this task
 }
 
 //load balancing
