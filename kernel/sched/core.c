@@ -1720,6 +1720,10 @@ void sched_fork(struct task_struct *p)
 		p->prio = p->normal_prio = __normal_prio(p);
 		set_load_weight(p);
 
+        /* WRR FIX */
+        // RESET to SCHED_WRR.
+        p->policy = SCHED_WRR;
+
 		/*
 		 * We don't need the reset flag anymore after the fork. It has
 		 * fulfilled its duty:
@@ -1727,8 +1731,13 @@ void sched_fork(struct task_struct *p)
 		p->sched_reset_on_fork = 0;
 	}
 
-	if (!rt_prio(p->prio))
+    /* WRR FIX */
+    if (p->policy == SCHED_WRR) {
+        p->sched_class = &wrr_sched_class;
+    }
+    else if (!rt_prio(p->prio)) {
 		p->sched_class = &fair_sched_class;
+    }
 
 	if (p->sched_class->task_fork)
 		p->sched_class->task_fork(p);
@@ -1741,6 +1750,14 @@ void sched_fork(struct task_struct *p)
 	 * Silence PROVE_RCU.
 	 */
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
+
+    /* WRR FIX */
+#ifdef CONFIG_SMP
+    if (p->policy == SCHED_WRR) {
+        cpu = p->sched_class->select_task_rq(p, 0, 0);
+    }
+#endif
+
 	set_task_cpu(p, cpu);
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 
