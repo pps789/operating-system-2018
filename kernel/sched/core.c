@@ -773,6 +773,38 @@ static void set_load_weight(struct task_struct *p)
 	load->inv_weight = prio_to_wmult[prio];
 }
 
+//set wrr weight
+static int __sched_setweight(pid_t pid, int weight) {
+	struct task_struct *p;
+	int retval;
+	struct rq *rq;
+	if(pid <0)
+		return -EINVAL;
+	retval = -ESRCH;
+	rcu_read_lock();
+	p = find_process_pid(pid);
+	if(!p)
+		goto out_unlock;
+
+	retval = security_task_getscheduler(p);
+	if(retval)
+		goto out_unlock;
+
+	rq = task_rq_lock(p, &flags);
+	retval = set_weight_wrr(p, weight);
+	task_rq_unlock(rq, p, &flags);
+
+	rcu_read_unlock();
+	return retval;
+
+out_unlock:
+	rcu_read_unlock();
+	return retval;
+}
+
+static int __sched_getweight(pid_t pid) {
+}
+
 static void enqueue_task(struct rq *rq, struct task_struct *p, int flags)
 {
 	update_rq_clock(rq);
