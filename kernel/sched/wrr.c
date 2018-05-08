@@ -80,9 +80,11 @@ static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int fla
 }
 
 static void set_curr_task_wrr(struct rq *rq) {
+    // TODO: need to do sth?
 }
 
 static void put_prev_task_wrr(struct rq *rq, struct task_struct *prev) {
+    // TODO: need to do sth?
 }
 
 #ifdef CONFIG_SMP
@@ -128,6 +130,14 @@ static int select_task_rq_wrr(struct task_struct *p, int sd_flag, int flags) {
 	return cpu;
 }
 
+static void rq_online_wrr(struct rq *rq) {
+    // TODO: need to do sth?
+}
+
+static void rq_offline_wrr(struct rq *rq) {
+    // TODO: need to do sth?
+}
+
 #endif /* CONFIG_SMP */
 
 static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
@@ -153,10 +163,20 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
     }
 }
 
+static void task_fork_wrr(struct task_struct *task) {
+    // TODO: set default weight
+}
+
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
+    // TODO: need to do sth?
 }
 
 static void switched_to_wrr(struct rq *this_rq, struct task_struct *task) {
+    // TODO: set default weight
+}
+
+static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *task) {
+    // TODO: return rr interval
 }
 
 // load balancing
@@ -200,10 +220,14 @@ const struct sched_class wrr_sched_class = {
 
 #ifdef CONFIG_SMP
     .select_task_rq     = select_task_rq_wrr,
+    .rq_online      = rq_online_wrr,
+    .rq_offline      = rq_offline_wrr,
 #endif
 
 	.set_curr_task		= set_curr_task_wrr,
 	.task_tick		= task_tick_wrr,
+    .task_fork      = task_fork_wrr,
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
+    .get_rr_interval         = get_rr_interval_wrr,
 };
