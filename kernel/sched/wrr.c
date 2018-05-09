@@ -7,7 +7,7 @@
 
 #define LB_INTERVAL 2*HZ
 
-void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
+void init_wrr_rq(struct wrr_rq *wrr_rq) {
 
 }
 
