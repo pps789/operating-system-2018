@@ -358,6 +358,16 @@ struct rt_rq {
 #endif
 };
 
+/* newly added wrr type classes */
+struct wrr_rq {
+    unsigned int wrr_nr_running; // size of run queue
+    struct rq *rq; // pointer to rq
+    struct list_head wrr_rq_list; // list of current run queue
+    unsigned long wrr_weight_total; // total weight of current run queue
+};
+
+
+
 #ifdef CONFIG_SMP
 
 /*
@@ -422,6 +432,7 @@ struct rq {
 
 	struct cfs_rq cfs;
 	struct rt_rq rt;
+    struct wrr_rq wrr;
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
 	/* list of leaf cfs_rq on this cpu: */
@@ -1036,6 +1047,7 @@ extern void update_group_power(struct sched_domain *sd, int cpu);
 
 extern void trigger_load_balance(struct rq *rq, int cpu);
 extern void idle_balance(int this_cpu, struct rq *this_rq);
+extern void wrr_trigger_load_balance(void);
 
 /*
  * Only depends on SMP, FAIR_GROUP_SCHED may be removed when runnable_avg
@@ -1387,3 +1399,19 @@ static inline u64 irq_time_read(int cpu)
 }
 #endif /* CONFIG_64BIT */
 #endif /* CONFIG_IRQ_TIME_ACCOUNTING */
+
+
+#define MAX_WEIGHT_WRR 20
+#define MIN_WEIGHT_WRR 1
+#define DEFAULT_WEIGHT_WRR 10
+
+static inline int set_weight_wrr(task_struct *p, int weight) {
+	struct sched_wrr__entity *wrr_se;
+	if(weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
+		return -EINVAL;
+	wrr_se = p->wrr;
+	wrr_se->weight = weight;
+
+	return 0;
+}
+	
