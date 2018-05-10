@@ -3725,7 +3725,9 @@ void set_user_nice(struct task_struct *p, long nice)
 	 * it wont have any effect on scheduling until the task is
 	 * SCHED_FIFO/SCHED_RR:
 	 */
-	if (task_has_rt_policy(p)) {
+    /* WRR FIX */
+    // Even if SCHED_WRR, we also allow...
+	if (task_has_rt_policy(p) || p->policy == SCHED_WRR) {
 		p->static_prio = NICE_TO_PRIO(nice);
 		goto out_unlock;
 	}
