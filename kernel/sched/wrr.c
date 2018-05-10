@@ -183,8 +183,9 @@ static void switched_to_wrr(struct rq *this_rq, struct task_struct *task) {
     // TODO: set default weight
 }
 
-static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *task) {
-    // TODO: return rr interval
+static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *p) {
+    struct sched_wrr_entity *wrr_se = &p->wrr;
+    return wrr_se->weight * 10;
 }
 
 // load balancing
