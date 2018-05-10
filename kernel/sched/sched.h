@@ -361,7 +361,6 @@ struct rt_rq {
 /* newly added wrr type classes */
 struct wrr_rq {
     unsigned int wrr_nr_running; // size of run queue
-    struct rq *rq; // pointer to rq
     struct list_head wrr_rq_list; // list of current run queue
     unsigned long wrr_weight_total; // total weight of current run queue
 };
@@ -1411,7 +1410,7 @@ static inline int set_weight_wrr(struct task_struct *p, int weight) {
 	struct sched_wrr_entity *wrr_se;
 	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
 		return -EINVAL;
-	wrr_se = p->wrr;
+	wrr_se = &p->wrr;
 	wrr_se->weight = weight;
 
 	return 0;
@@ -1419,6 +1418,6 @@ static inline int set_weight_wrr(struct task_struct *p, int weight) {
 
 static inline unsigned int get_weight_wrr (struct task_struct *p) {
 	struct sched_wrr_entity *wrr_se;
-	wrr_se = p->wrr;
+	wrr_se = &p->wrr;
 	return wrr_se->weight;
 }

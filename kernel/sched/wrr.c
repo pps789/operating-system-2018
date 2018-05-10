@@ -12,7 +12,9 @@
 #define LB_INTERVAL 2*HZ
 
 void init_wrr_rq(struct wrr_rq *wrr_rq) {
-
+    wrr_rq->wrr_nr_running = 0;
+    INIT_LIST_HEAD(&wrr_rq->wrr_rq_list);
+    wrr_rq->wrr_weight_total = 0;
 }
 
 static void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
