@@ -786,10 +786,6 @@ static int __sched_setweight(pid_t pid, int weight) {
 	if(!p)
 		goto out_unlock;
 
-	retval = security_task_getscheduler(p);
-	if(retval)
-		goto out_unlock;
-
 	rq = task_rq_lock(p, &flags);
 	retval = set_weight_wrr(p, weight);
 	task_rq_unlock(rq, p, &flags);
@@ -802,7 +798,27 @@ out_unlock:
 	return retval;
 }
 
-static int __sched_getweight(pid_t pid) {
+static unsigned int __sched_getweight(pid_t pid) {
+	struct task_struct *p;
+	struct rq *rq;
+	unsigned int weight;
+	if(pid <0)
+		return -EINVAL;
+	rcu_read_lock();
+	p = find_process_pid(pid);
+	if(!p)
+		goto out_unlock;
+
+	rq = task_rq_lock(p, &flags);
+	weight = get_weight_wrr(p);
+	task_rq_unlock(rq, p, &flags);
+
+	rcu_read_unlock();
+	return weight;
+
+out_unlock:
+	rcu_read_unlock();
+	return 0;
 }
 
 static void enqueue_task(struct rq *rq, struct task_struct *p, int flags)
