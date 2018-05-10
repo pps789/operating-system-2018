@@ -5,10 +5,6 @@
 #include <linux/list.h>
 #include "sched.h"
 
-#define WRR_DEFAULT_WEIGHT 10
-#define WRR_MAX_WEIGHT 20
-#define WRR_MIN_WEIGHT 1
-
 #define LB_INTERVAL 2*HZ
 
 void init_wrr_rq(struct wrr_rq *wrr_rq) {
@@ -171,8 +167,8 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
 
 
 
-static void task_fork_wrr(struct task_struct *task) {
-    // TODO: set default weight
+static void task_fork_wrr(struct task_struct *p) {
+    set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
 }
 
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
