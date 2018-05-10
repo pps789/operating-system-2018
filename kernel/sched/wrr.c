@@ -40,7 +40,7 @@ static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
 	//set_time_slice_wrr(wrr_se);
     // TODO: do we need RCU?
-	list_add_tail_rcu(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
+	list_add_tail(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
 	(rq->wrr.wrr_nr_running)++;
 
 	// TODO: if lock is needed, please add another function to lock
@@ -57,7 +57,7 @@ static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 
 static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
     // TODO: do we need RCU?
-	list_del_rcu(&wrr_se->run_list);
+	list_del(&wrr_se->run_list);
 	(rq->wrr.wrr_nr_running)--;
 
 	// TODO: if lock is needed, please add another function to lock
@@ -78,7 +78,7 @@ static void requeue_task_wrr(struct rq *rq) {
 }
 
 static void yield_task_wrr(struct rq *rq) {
-	requeue_task_wrr(rq);
+    // we don't have to implement this.
 }
 
 static void check_preempt_curr_wrr(struct rq *rq, struct task_struct *p, int flags) {
