@@ -773,12 +773,13 @@ static void set_load_weight(struct task_struct *p)
 	load->inv_weight = prio_to_wmult[prio];
 }
 
-//set wrr weight
+// set wrr weight
 static int __sched_setweight(pid_t pid, int weight) {
+    // TODO: check permission, etc
 	struct task_struct *p;
 	int retval;
 	struct rq *rq;
-	if(pid <0)
+	if (pid < 0)
 		return -EINVAL;
 	retval = -ESRCH;
 	rcu_read_lock();
@@ -790,23 +791,23 @@ static int __sched_setweight(pid_t pid, int weight) {
 	retval = set_weight_wrr(p, weight);
 	task_rq_unlock(rq, p, &flags);
 
-	rcu_read_unlock();
-	return retval;
-
 out_unlock:
 	rcu_read_unlock();
 	return retval;
 }
 
-static unsigned int __sched_getweight(pid_t pid) {
+static int __sched_getweight(pid_t pid) {
+    // TODO: check permission, etc
+    // TODO: do we only need PI lock?
 	struct task_struct *p;
 	struct rq *rq;
-	unsigned int weight;
-	if(pid <0)
+	int weight;
+	if (pid < 0)
 		return -EINVAL;
+
 	rcu_read_lock();
 	p = find_process_pid(pid);
-	if(!p)
+	if (!p)
 		goto out_unlock;
 
 	rq = task_rq_lock(p, &flags);

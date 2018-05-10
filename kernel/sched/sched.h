@@ -1407,9 +1407,9 @@ static inline u64 irq_time_read(int cpu)
 #define MIN_WEIGHT_WRR 1
 #define DEFAULT_WEIGHT_WRR 10
 
-static inline int set_weight_wrr(task_struct *p, int weight) {
+static inline int set_weight_wrr(struct task_struct *p, int weight) {
 	struct sched_wrr_entity *wrr_se;
-	if(weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
+	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
 		return -EINVAL;
 	wrr_se = p->wrr;
 	wrr_se->weight = weight;
@@ -1417,7 +1417,7 @@ static inline int set_weight_wrr(task_struct *p, int weight) {
 	return 0;
 }
 
-static inline unsigned int get_weight_wrr (task_struct *p) {
+static inline unsigned int get_weight_wrr (struct task_struct *p) {
 	struct sched_wrr_entity *wrr_se;
 	wrr_se = p->wrr;
 	return wrr_se->weight;
