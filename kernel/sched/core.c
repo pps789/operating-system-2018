@@ -3686,6 +3686,7 @@ void rt_mutex_setprio(struct task_struct *p, int prio)
 		p->sched_class->put_prev_task(rq, p);
 
     /* WRR FIX */
+    // TODO: does it work????
     if (p->policy != SCHED_WRR) {
         if (rt_prio(prio))
             p->sched_class = &rt_sched_class;
