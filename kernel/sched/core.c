@@ -1752,6 +1752,10 @@ void sched_fork(struct task_struct *p)
 		p->prio = p->normal_prio = __normal_prio(p);
 		set_load_weight(p);
 
+        /* WRR FIX */
+        // RESET to SCHED_WRR.
+        p->policy = SCHED_WRR;
+
 		/*
 		 * We don't need the reset flag anymore after the fork. It has
 		 * fulfilled its duty:
@@ -1759,8 +1763,13 @@ void sched_fork(struct task_struct *p)
 		p->sched_reset_on_fork = 0;
 	}
 
-	if (!rt_prio(p->prio))
+    /* WRR FIX */
+    if (p->policy == SCHED_WRR) {
+        p->sched_class = &wrr_sched_class;
+    }
+    else if (!rt_prio(p->prio)) {
 		p->sched_class = &fair_sched_class;
+    }
 
 	if (p->sched_class->task_fork)
 		p->sched_class->task_fork(p);
@@ -1773,6 +1782,14 @@ void sched_fork(struct task_struct *p)
 	 * Silence PROVE_RCU.
 	 */
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
+
+    /* WRR FIX */
+#ifdef CONFIG_SMP
+    if (p->policy == SCHED_WRR) {
+        cpu = p->sched_class->select_task_rq(p, 0, 0);
+    }
+#endif
+
 	set_task_cpu(p, cpu);
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 
@@ -3700,10 +3717,14 @@ void rt_mutex_setprio(struct task_struct *p, int prio)
 	if (running)
 		p->sched_class->put_prev_task(rq, p);
 
-	if (rt_prio(prio))
-		p->sched_class = &rt_sched_class;
-	else
-		p->sched_class = &fair_sched_class;
+    /* WRR FIX */
+    // TODO: does it work????
+    if (p->policy != SCHED_WRR) {
+        if (rt_prio(prio))
+            p->sched_class = &rt_sched_class;
+        else
+            p->sched_class = &fair_sched_class;
+    }
 
 	p->prio = prio;
 
@@ -3736,7 +3757,9 @@ void set_user_nice(struct task_struct *p, long nice)
 	 * it wont have any effect on scheduling until the task is
 	 * SCHED_FIFO/SCHED_RR:
 	 */
-	if (task_has_rt_policy(p)) {
+    /* WRR FIX */
+    // Even if SCHED_WRR, we also allow...
+	if (task_has_rt_policy(p) || p->policy == SCHED_WRR) {
 		p->static_prio = NICE_TO_PRIO(nice);
 		goto out_unlock;
 	}
@@ -3894,7 +3917,11 @@ __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 	p->normal_prio = normal_prio(p);
 	/* we are holding p->pi_lock already */
 	p->prio = rt_mutex_getprio(p);
-	if (rt_prio(p->prio)) {
+
+    /* WRR FIX */
+	if (p->policy == SCHED_WRR)
+        p->sched_class = &wrr_sched_class;
+    else if (rt_prio(p->prio)) {
 		p->sched_class = &rt_sched_class;
 #ifdef CONFIG_SCHED_HMP
 		if (cpumask_equal(&p->cpus_allowed, cpu_all_mask))
@@ -3942,9 +3969,10 @@ recheck:
 		reset_on_fork = !!(policy & SCHED_RESET_ON_FORK);
 		policy &= ~SCHED_RESET_ON_FORK;
 
+        /* WRR FIX */
 		if (policy != SCHED_FIFO && policy != SCHED_RR &&
 				policy != SCHED_NORMAL && policy != SCHED_BATCH &&
-				policy != SCHED_IDLE)
+				policy != SCHED_IDLE && policy != SCHED_WRR)
 			return -EINVAL;
 	}
 
@@ -7058,6 +7086,8 @@ void __init sched_init(void)
 		rq->calc_load_update = jiffies + LOAD_FREQ;
 		init_cfs_rq(&rq->cfs);
 		init_rt_rq(&rq->rt, rq);
+        /* WRR FIX */
+        init_wrr_rq(&rq->wrr);
 #ifdef CONFIG_FAIR_GROUP_SCHED
 		root_task_group.shares = ROOT_TASK_GROUP_LOAD;
 		INIT_LIST_HEAD(&rq->leaf_cfs_rq_list);
@@ -7151,7 +7181,8 @@ void __init sched_init(void)
 	/*
 	 * During early bootup we pretend to be a normal task:
 	 */
-	current->sched_class = &fair_sched_class;
+    /* WRR FIX */
+	current->sched_class = &wrr_sched_class;
 
 #ifdef CONFIG_SMP
 	zalloc_cpumask_var(&sched_domains_tmpmask, GFP_NOWAIT);

@@ -11,7 +11,7 @@
 
 #define LB_INTERVAL 2*HZ
 
-void init_wrr_rq(struct wrr_rq *wrr_rq, struct rq *rq) {
+void init_wrr_rq(struct wrr_rq *wrr_rq) {
 
 }
 
@@ -216,7 +216,7 @@ void wrr_trigger_load_balance(void) {
 
 // our sched_class struct
 const struct sched_class wrr_sched_class = {
-	// .next = ,
+    .next       = &fair_sched_class,
 	.enqueue_task 		= enqueue_task_wrr,
 	.dequeue_task 		= dequeue_task_wrr,
 	.yield_task 		= yield_task_wrr,
