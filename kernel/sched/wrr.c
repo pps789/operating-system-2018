@@ -185,9 +185,23 @@ static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *p) {
 }
 
 // load balancing
-static void wrr_load_balance(void) {
-    // TODO: perform LB
+static int get_load(struct wrr_rq *wrr_rq) {
+    struct sched_wrr_entity *wrr_se;
+    int weight = 0;
+
+    list_for_each_entry(wrr, &wrr_rq->queue, run_list) {
+        weight += wrr_se->weight;
+    }
+    return weight;
 }
+static void wrr_load_balance(void) {
+    struct rq *cpu;
+    struct wrr_rq *wrr_rq;
+    struct task_struct *p;
+    int loads[NR_CPUS];
+
+}
+
 
 // jiffies of NEXT balance time
 static unsigned long wrr_next_balance;
