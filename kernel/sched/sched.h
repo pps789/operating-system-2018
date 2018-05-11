@@ -361,7 +361,6 @@ struct rt_rq {
 /* newly added wrr type classes */
 struct wrr_rq {
     unsigned int wrr_nr_running; // size of run queue
-    struct rq *rq; // pointer to rq
     struct list_head wrr_rq_list; // list of current run queue
     unsigned long wrr_weight_total; // total weight of current run queue
 };
@@ -1336,6 +1335,7 @@ extern struct sched_entity *__pick_first_entity(struct cfs_rq *cfs_rq);
 extern struct sched_entity *__pick_last_entity(struct cfs_rq *cfs_rq);
 extern void print_cfs_stats(struct seq_file *m, int cpu);
 extern void print_rt_stats(struct seq_file *m, int cpu);
+extern void print_wrr_stats(struct seq_file *m, int cpu);
 
 extern void init_cfs_rq(struct cfs_rq *cfs_rq);
 extern void init_rt_rq(struct rt_rq *rt_rq, struct rq *rq);
@@ -1407,13 +1407,18 @@ static inline u64 irq_time_read(int cpu)
 #define MIN_WEIGHT_WRR 1
 #define DEFAULT_WEIGHT_WRR 10
 
-static inline int set_weight_wrr(task_struct *p, int weight) {
-	struct sched_wrr__entity *wrr_se;
-	if(weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
+static inline int set_weight_wrr(struct task_struct *p, int weight) {
+	struct sched_wrr_entity *wrr_se;
+	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR) 
 		return -EINVAL;
-	wrr_se = p->wrr;
+	wrr_se = &p->wrr;
 	wrr_se->weight = weight;
 
 	return 0;
 }
-	
+
+static inline unsigned int get_weight_wrr (struct task_struct *p) {
+	struct sched_wrr_entity *wrr_se;
+	wrr_se = &p->wrr;
+	return wrr_se->weight;
+}
