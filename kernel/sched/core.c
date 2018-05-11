@@ -1744,7 +1744,7 @@ void sched_fork(struct task_struct *p)
     /* WRR FIX */
 #ifdef CONFIG_SMP
     if (p->policy == SCHED_WRR) {
-        // cpu = p->sched_class->select_task_rq(p, 0, 0);
+        cpu = p->sched_class->select_task_rq(p, 0, 0);
     }
 #endif
 

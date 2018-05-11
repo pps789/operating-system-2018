@@ -187,7 +187,6 @@ static unsigned long wrr_next_balance;
 static DEFINE_SPINLOCK(wrr_balance_lock);
 
 void wrr_trigger_load_balance(void) {
-    return;
     if (!time_after_eq(jiffies, wrr_next_balance)) return;
 
     // for now, we should do load balancing
