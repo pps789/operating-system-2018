@@ -7152,6 +7152,10 @@ void __init sched_init(void)
 	init_sched_fair_class();
 
 	scheduler_running = 1;
+
+#ifdef CONFIG_SMP
+    wrr_next_balance = jiffies + WRR_LB_INTERVAL;
+#endif
 }
 
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
