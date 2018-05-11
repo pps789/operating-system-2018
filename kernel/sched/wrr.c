@@ -235,5 +235,4 @@ const struct sched_class wrr_sched_class = {
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
     .get_rr_interval         = get_rr_interval_wrr,
->>>>>>> origin/proj3-JSW
 };
