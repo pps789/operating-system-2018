@@ -14,8 +14,7 @@ void init_wrr_rq(struct wrr_rq *wrr_rq) {
 }
 
 static void set_time_slice_wrr(struct sched_wrr_entity *wrr_se) {
-    // wrr_se->time_slice = msecs_to_jiffies(wrr_se->weight * 10);
-    wrr_se->time_slice = 10;
+    wrr_se->time_slice = msecs_to_jiffies(wrr_se->weight * 10);
 }
 
 static inline struct task_struct *wrr_task_of(struct sched_wrr_entity *wrr_se) {
@@ -35,35 +34,23 @@ static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
 static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-	set_time_slice_wrr(wrr_se);
-    // TODO: do we need RCU?
 	list_add_tail(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
 	(rq->wrr.wrr_nr_running)++;
 
-	// TODO: if lock is needed, please add another function to lock
-	// wrr before reading weight value
 	rq->wrr.wrr_weight_total += wrr_se->weight;
 }
 
 static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 	struct sched_wrr_entity *wrr_se = &p->wrr;
     
-    // TODO: dummy code :(
-    p->wrr.weight = DEFAULT_WEIGHT_WRR;
-
-    // printk(KERN_ALERT "enqueue! PID: %d ", p->pid);
-
 	enqueue_wrr_entity(rq, wrr_se);
 	inc_nr_running(rq);
 }
 
 static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-    // TODO: do we need RCU?
-	list_del_init(&wrr_se->run_list);
+	list_del(&wrr_se->run_list);
 	(rq->wrr.wrr_nr_running)--;
 
-	// TODO: if lock is needed, please add another function to lock
-	// wrr before reading weight value
 	rq->wrr.wrr_weight_total -= wrr_se->weight;
 }
 
@@ -160,9 +147,7 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *task, int queued) {
     // now, p spent all its time_slice.
 
     if (wrr_rq->wrr_nr_running > 1) {
-        list_del_init(&wrr_se->run_list);
-        list_add_tail(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
-        // requeue_task_wrr(rq);
+        requeue_task_wrr(rq);
         set_tsk_need_resched(p);
     }
     else {
@@ -174,22 +159,22 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *task, int queued) {
 
 
 static void task_fork_wrr(struct task_struct *p) {
-    set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
-    set_time_slice_wrr(&p->wrr);
+    unsigned int parent_weight = get_weight_wrr(p->real_parent);
+    set_weight_wrr(p, parent_weight);
 }
 
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
-    // TODO: need to do sth?
+    // nothing to do.
 }
 
 static void switched_to_wrr(struct rq *this_rq, struct task_struct *p) {
+    // TODO: we need to update total weight!
     set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
-    set_time_slice_wrr(&p->wrr);
 }
 
 static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *p) {
     struct sched_wrr_entity *wrr_se = &p->wrr;
-    return wrr_se->weight * 10;
+    return msecs_to_jiffies(wrr_se->weight * 10);
 }
 
 // load balancing
