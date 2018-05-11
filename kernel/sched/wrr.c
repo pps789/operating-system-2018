@@ -241,7 +241,7 @@ static void wrr_load_balance(void) {
 
     if (actives <= 1) {
     //  rcu_read_unlock();
-    //  preampt_disable();
+    //  preampt_enable();
         return;
     }
     else {
