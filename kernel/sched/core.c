@@ -4957,6 +4957,9 @@ fail:
  * and performs thread migration by bumping thread off CPU then
  * 'pushing' onto another runqueue.
  */
+int wrr_migrate_task(struct task_struct *p, int src_cpu, int dest_cpu) {
+    return __migrate_task(p, src_cpu, dest_cpu);
+}
 static int migration_cpu_stop(void *data)
 {
 	struct migration_arg *arg = data;
