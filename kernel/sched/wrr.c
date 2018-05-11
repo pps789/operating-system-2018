@@ -195,7 +195,7 @@ static int get_load_lb(struct wrr_rq *wrr_rq) {
     return total_weight;
 }
 
-static struct task_struct * find_move_task_lb(struct rq *_rq, int min, int max) {
+static struct task_struct* find_move_task_lb(struct rq *_rq, int min, int max) {
     struct sched_wrr_entity *wrr_se, *to_move_entity = NULL;
     struct wrr_rq *_wrr_rq;
     struct task_struct *t;
@@ -225,6 +225,31 @@ static void wrr_load_balance(void) {
     struct task_struct *t;
     int loads[NR_CPUS];
     int cpu = 0, min = 0, max = 0, actives = 0;
+    
+    // preempt_disable();
+    // rcu_read_lock();
+    for_each_cpu(cpu, cpu_active_mask) {
+        rq = cpu_rq(cpu);
+
+        wrr_rq = &rq->wrr;
+        actives++;
+        loads[cpu] = get_load_lb(wrr_rq);
+        
+        if (loads[min] > loads[cpu]) min = cpu;
+        if (loads[max] < loads[cpu]) max = cpu;
+    }
+
+    if (actives <= 1) {
+    //  rcu_read_unlock();
+    //  preampt_disable();
+        return;
+    }
+    else {
+        t = find_move_task_lb(cpu_rq(max), loads[min], loads[max]);
+    //  rcu_read_unlock();
+        wrr_migrate_task(t, max, min);
+    }
+    // preempt_enable();
 }
 
 
