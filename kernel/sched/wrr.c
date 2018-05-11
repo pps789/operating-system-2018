@@ -168,7 +168,7 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *p, int queued) {
 
 
 static void task_fork_wrr(struct task_struct *p) {
-    set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
+    //set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
 }
 
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
@@ -236,3 +236,14 @@ const struct sched_class wrr_sched_class = {
 	.switched_to		= switched_to_wrr,
     .get_rr_interval         = get_rr_interval_wrr,
 };
+
+#ifdef CONFIG_SCHED_DEBUG
+
+extern void print_wrr_rq(struct seq_file *m, int cpu, struct wrr_rq *wrr_rq);
+
+void print_wrr_stats(struct seq_file *m, int cpu) {
+    rcu_read_lock();
+    print_wrr_rq(m, cpu, &(cpu_rq(cpu)->wrr));
+    rcu_read_unlock();
+}
+#endif
