@@ -1424,4 +1424,4 @@ static inline unsigned int get_weight_wrr (struct task_struct *p) {
 }
 
 extern unsigned long wrr_next_balance;
-#define WRR_LB_INTERVAL 2*HZ
+#define WRR_LB_INTERVAL (2*HZ)

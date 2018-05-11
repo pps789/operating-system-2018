@@ -178,21 +178,6 @@ static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *p) {
 // load balancing
 static void wrr_load_balance(void) {
     // TODO: perform LB
-    int cpu;
-
-    printk(KERN_ALERT "Let's start LB!\n");
-    // let's print current wrr_rq...
-    for_each_online_cpu(cpu) {
-        struct rq *rq = cpu_rq(cpu);
-        struct wrr_rq *wrr_rq = &rq->wrr;
-        struct sched_wrr_entity *wrr_se;
-        printk(KERN_ALERT "cpu #%d, %d of %d running, total weight is %lu.\n",
-                cpu, wrr_rq->wrr_nr_running, rq->nr_running, wrr_rq->wrr_weight_total);
-        list_for_each_entry(wrr_se, &wrr_rq->wrr_rq_list, run_list) {
-            printk(KERN_ALERT "[[%d:%dT%d]]",
-                    wrr_task_of(wrr_se)->pid, wrr_se->weight, wrr_se->time_slice);
-        }
-    }
 }
 
 // jiffies of NEXT balance time
@@ -200,7 +185,6 @@ unsigned long wrr_next_balance;
 static DEFINE_SPINLOCK(wrr_balance_lock);
 
 void wrr_trigger_load_balance(void) {
-    if (jiffies % 200 == 0) printk(KERN_ALERT "HO! J%lu, N%lu\n", jiffies, wrr_next_balance);
     if (!time_after_eq(jiffies, wrr_next_balance)) return;
 
     // for now, we should do load balancing
