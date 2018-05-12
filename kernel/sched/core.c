@@ -8208,7 +8208,7 @@ static int __sched_setweight(pid_t pid, int weight) {
 
 	//user check
 	euid = p->cred->euid;
-	if(check_same_owner(p) || euid == 0) {
+	if(!(check_same_owner(p) || euid == 0)) {
 		retval = -EACCES;
 		goto out_unlock;
 	}
