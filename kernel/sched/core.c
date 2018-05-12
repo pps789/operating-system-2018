@@ -8192,11 +8192,12 @@ void dump_cpu_task(int cpu)
 
 // set wrr weight
 static int __sched_setweight(pid_t pid, int weight) {
-    // TODO: check permission, etc
 	struct task_struct *p;
 	int retval;
 	struct rq *rq;
     unsigned long flags;
+	unsigned int policy;
+	kuid_t euid;
 	if (pid < 0)
 		return -EINVAL;
 	retval = -ESRCH;
@@ -8205,21 +8206,33 @@ static int __sched_setweight(pid_t pid, int weight) {
 	if(!p)
 		goto out_unlock;
 
+	//user check
+	euid = p->cred->euid;
+	if(check_same_owner(p) || euid == 0) {
+		retval = -EACCES;
+		goto out_unlock;
+	}
+	//policy check
+	policy = p->policy;
+	if(policy != 6) {
+		//don't know which error code we should use
+		retval = -EACCES;
+		goto out_unlock;
+	}
 	rq = task_rq_lock(p, &flags);
 	retval = set_weight_wrr(p, weight);
 	task_rq_unlock(rq, p, &flags);
-
 out_unlock:
 	rcu_read_unlock();
 	return retval;
 }
 
 static int __sched_getweight(pid_t pid) {
-    // TODO: check permission, etc
-    // TODO: do we only need PI lock?
 	struct task_struct *p;
 	struct rq *rq;
     unsigned long flags;
+	//do we need policy restriction?
+	//unsigned int policy;
 	int weight = -ESRCH;
 	if (pid < 0)
 		return -EINVAL;
