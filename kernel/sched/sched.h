@@ -100,7 +100,7 @@ struct rt_bandwidth {
 	struct hrtimer		rt_period_timer;
 };
 
-extern struct wrr_migrate_task(struct task_struct *p, int src_cpu, int dest_cpu);
+extern int wrr_migrate_task(struct task_struct *p, int src_cpu, int dest_cpu);
 
 extern struct mutex sched_domains_mutex;
 
