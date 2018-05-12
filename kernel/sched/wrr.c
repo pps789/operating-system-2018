@@ -154,7 +154,33 @@ static void task_tick_wrr(struct rq *rq, struct task_struct *task, int queued) {
     }
 }
 
+int set_weight_wrr(struct task_struct *p, int weight) {
+	struct sched_wrr_entity *wrr_se;
+	struct rq *rq;
+	struct wrr_rq *wrr_rq;
+	unsigned int old_weight;
+	
+	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR)
+		return -EINVAL;
+	
+	wrr_se = &p->wrr;
+	rq = task_rq(p);
+	wrr_rq = &rq->wrr;
+	old_weight = wrr_se->weight;
+	wrr_se->weight = weight;
+	
+	//modify total weight
+	wrr_rq->wrr_weight_total -= old_weight;
+	wrr_rq->wrr_weight_total += weight;
+			
+	return 0;
+}
 
+int get_weight_wrr(struct task_struct *p) {
+	struct sched_wrr_entity *wrr_se;
+	wrr_se = &p->wrr;
+	return (int)wrr_se->weight;
+}
 
 static void task_fork_wrr(struct task_struct *p) {
     unsigned int parent_weight = get_weight_wrr(p->real_parent);
