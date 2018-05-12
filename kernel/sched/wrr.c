@@ -226,6 +226,7 @@ static int get_load_lb(struct wrr_rq *wrr_rq) {
 
     list_for_each_entry(wrr_se, &wrr_rq->wrr_rq_list, run_list) {
         total_weight += wrr_se->weight;
+    }
     return total_weight;
 }
 
