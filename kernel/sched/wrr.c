@@ -32,7 +32,7 @@ static struct task_struct *pick_next_task_wrr(struct rq *rq) {
 }
 
 static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
-	list_add_tail(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
+    list_add_tail(&wrr_se->run_list, &rq->wrr.wrr_rq_list);
 	(rq->wrr.wrr_nr_running)++;
 
 	rq->wrr.wrr_weight_total += wrr_se->weight;
@@ -40,7 +40,7 @@ static void enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
 
 static void enqueue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 	struct sched_wrr_entity *wrr_se = &p->wrr;
-    
+
 	enqueue_wrr_entity(rq, wrr_se);
 	inc_nr_running(rq);
 }
@@ -54,7 +54,7 @@ static void dequeue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se) {
 
 static void dequeue_task_wrr(struct rq *rq, struct task_struct *p, int flags) {
 	struct sched_wrr_entity *wrr_se = &p->wrr;
-	
+
 	dequeue_wrr_entity(rq, wrr_se);
 	dec_nr_running(rq);
 }
@@ -159,20 +159,20 @@ int set_weight_wrr(struct task_struct *p, int weight) {
 	struct rq *rq;
 	struct wrr_rq *wrr_rq;
 	unsigned int old_weight;
-	
+
 	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR)
 		return -EINVAL;
-	
+
 	wrr_se = &p->wrr;
 	rq = task_rq(p);
 	wrr_rq = &rq->wrr;
 	old_weight = wrr_se->weight;
 	wrr_se->weight = weight;
-	
+
 	//modify total weight
 	wrr_rq->wrr_weight_total -= old_weight;
 	wrr_rq->wrr_weight_total += weight;
-			
+
 	return 0;
 }
 
@@ -224,7 +224,7 @@ void wrr_trigger_load_balance(void) {
 
     // before LB, set timeout.
     wrr_next_balance = jiffies + WRR_LB_INTERVAL;
-    
+
     spin_unlock(&wrr_balance_lock);
 
     wrr_load_balance();
