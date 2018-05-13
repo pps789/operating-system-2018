@@ -8193,11 +8193,13 @@ void dump_cpu_task(int cpu)
 // set wrr weight
 static int __sched_setweight(pid_t pid, int weight) {
 	struct task_struct *p;
+	const struct cred *cred = current_cred();
 	int retval;
 	struct rq *rq;
     unsigned long flags;
 	unsigned int policy;
 	kuid_t euid;
+
 	if (pid < 0)
 		return -EINVAL;
 	retval = -ESRCH;
@@ -8207,7 +8209,7 @@ static int __sched_setweight(pid_t pid, int weight) {
 		goto out_unlock;
 
 	//user check
-	euid = p->cred->euid;
+	euid = cred->euid;
 	if(!(check_same_owner(p) || euid == 0)) {
 		retval = -EACCES;
 		goto out_unlock;
