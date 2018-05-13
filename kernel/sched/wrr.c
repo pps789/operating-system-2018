@@ -211,9 +211,77 @@ static unsigned int get_rr_interval_wrr(struct rq *rq, struct task_struct *p) {
 }
 
 // load balancing
+static void wrr_load_balance(void);
+static struct task_struct * find_move_task_lb(struct rq *, int, int);
+static int get_load_lb(struct wrr_rq *);
 static void wrr_load_balance(void) {
-    // TODO: perform LB
+    struct rq *rq;
+    struct wrr_rq *wrr_rq;
+    struct task_struct *t;
+    int loads[NR_CPUS];
+    int cpu = 0, min = 0, max = 0, actives = 0;
+    
+    // preempt_disable();
+    // rcu_read_lock();
+    for_each_cpu(cpu, cpu_active_mask) {
+        rq = cpu_rq(cpu);
+
+        wrr_rq = &rq->wrr;
+        actives++;
+        loads[cpu] = get_load_lb(wrr_rq);
+        
+        if (loads[min] > loads[cpu]) min = cpu;
+        if (loads[max] < loads[cpu]) max = cpu;
+    }
+
+    if (actives <= 1) {
+    //  rcu_read_unlock();
+    //  preampt_enable();
+        return;
+    }
+    else {
+        t = find_move_task_lb(cpu_rq(max), loads[min], loads[max]);
+    //  rcu_read_unlock();
+        wrr_migrate_task(t, max, min);
+    }
+    // preempt_enable();
 }
+static int get_load_lb(struct wrr_rq *wrr_rq) {
+    struct sched_wrr_entity *wrr_se;
+    int total_weight = 0;
+
+    list_for_each_entry(wrr_se, &wrr_rq->wrr_rq_list, run_list) {
+        total_weight += wrr_se->weight;
+    }
+    return total_weight;
+}
+
+
+static struct task_struct * find_move_task_lb(struct rq *_rq, int min, int max) {
+    struct sched_wrr_entity *wrr_se, *move_entity = NULL;
+    struct wrr_rq *_wrr_rq;
+    struct task_struct *t;
+    int move_entity_weight = 0;
+
+    _wrr_rq = &_rq->wrr;
+
+    list_for_each_entry(wrr_se, &_wrr_rq->wrr_rq_list, run_list) {
+        t = container_of(wrr_se, struct task_struct, wrr);
+        if (t != _rq->curr &&
+            wrr_se->weight > move_entity_weight &&
+            min + wrr_se->weight < max - wrr_se->weight) {
+                move_entity = wrr_se;
+                move_entity_weight = wrr_se->weight;
+        }
+    }    
+    
+    if (!move_entity) t = NULL;
+    else t = container_of(move_entity, struct task_struct, wrr);
+        
+    return t;
+}
+
+
 
 // jiffies of NEXT balance time
 unsigned long wrr_next_balance;
