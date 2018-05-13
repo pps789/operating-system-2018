@@ -8193,37 +8193,38 @@ void dump_cpu_task(int cpu)
 // set wrr weight
 static int __sched_setweight(pid_t pid, int weight) {
 	struct task_struct *p;
-	const struct cred *cred = current_cred();
+	const struct cred *curr_cred = current_cred();
 	int retval;
 	struct rq *rq;
     unsigned long flags;
-	unsigned int policy;
-	kuid_t euid;
+	kuid_t curr_euid;
 
 	if (pid < 0)
-		return -EINVAL;
+        return -EINVAL;
 	retval = -ESRCH;
+
 	rcu_read_lock();
 	p = find_process_by_pid(pid);
 	if(!p)
-		goto out_unlock;
+        goto out_unlock;
 
-	//user check
-	euid = cred->euid;
-	if(!(check_same_owner(p) || euid == 0)) {
-		retval = -EACCES;
-		goto out_unlock;
+	// user check
+	curr_euid = curr_cred->euid;
+	if (!(check_same_owner(p) || curr_euid == 0)) {
+        retval = -EACCES;
+        goto out_unlock;
 	}
-	//policy check
-	policy = p->policy;
-	if(policy != 6) {
-		//don't know which error code we should use
-		retval = -EACCES;
-		goto out_unlock;
-	}
+
 	rq = task_rq_lock(p, &flags);
-	retval = set_weight_wrr(p, weight);
+	// policy check while holding rq lock
+	if (p->policy == SCHED_WRR && p->sched_class == &wrr_sched_class) {
+        retval = set_weight_wrr(p, weight);
+	}
+    else {
+        retval = -EINVAL;
+    }
 	task_rq_unlock(rq, p, &flags);
+
 out_unlock:
 	rcu_read_unlock();
 	return retval;
@@ -8233,29 +8234,28 @@ static int __sched_getweight(pid_t pid) {
 	struct task_struct *p;
 	struct rq *rq;
     unsigned long flags;
-	//do we need policy restriction?
-	//unsigned int policy;
-	int weight = -ESRCH;
-	if (pid < 0)
-		return -EINVAL;
-	
-	//if pid == 0 then return the weight of the calling process
-	if (pid == 0) {
-		return __sched_getweight(current->pid);
-	}
 
+	int retval = -ESRCH;
+	if (pid < 0)
+        return -EINVAL;
+	
 	rcu_read_lock();
 	p = find_process_by_pid(pid);
 	if (!p)
-		goto out_unlock;
+        goto out_unlock;
 
 	rq = task_rq_lock(p, &flags);
-	weight = get_weight_wrr(p);
+	if (p->policy == SCHED_WRR && p->sched_class == &wrr_sched_class) {
+        retval = get_weight_wrr(p);
+	}
+    else {
+        retval = -EINVAL;
+    }
 	task_rq_unlock(rq, p, &flags);
 
 out_unlock:
 	rcu_read_unlock();
-	return weight;
+    return retval;
 }
 
 

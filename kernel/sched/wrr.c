@@ -159,25 +159,26 @@ int set_weight_wrr(struct task_struct *p, int weight) {
 	struct rq *rq;
 	struct wrr_rq *wrr_rq;
 	unsigned int old_weight;
-	const struct cred *cred = current_cred();
-	kuid_t euid = cred->euid;
+	const struct cred *curr_cred = current_cred();
+	kuid_t curr_euid = curr_cred->euid;
 
 	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR)
-		return -EINVAL;
+        return -EINVAL;
 
 	wrr_se = &p->wrr;
 	rq = task_rq(p);
 	wrr_rq = &rq->wrr;
 	old_weight = wrr_se->weight;
-	wrr_se->weight = weight;
 	
-	//permission for weight increase
-	//only for admin
-	if((weight > old_weight) && (euid != 0)) {
+    // final check before modify weights
+	// permission for weight increase
+	// only for admin
+	if ((weight > old_weight) && (curr_euid != 0)) {
 		return -EACCES;
 	}
 
-	//modify total weight
+	// modify weights
+	wrr_se->weight = weight;
 	wrr_rq->wrr_weight_total -= old_weight;
 	wrr_rq->wrr_weight_total += weight;
 
