@@ -8238,6 +8238,11 @@ static int __sched_getweight(pid_t pid) {
 	int weight = -ESRCH;
 	if (pid < 0)
 		return -EINVAL;
+	
+	//if pid == 0 then return the weight of the calling process
+	if (pid == 0) {
+		return __sched_getweight(current->pid);
+	}
 
 	rcu_read_lock();
 	p = find_process_by_pid(pid);

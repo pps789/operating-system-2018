@@ -159,6 +159,8 @@ int set_weight_wrr(struct task_struct *p, int weight) {
 	struct rq *rq;
 	struct wrr_rq *wrr_rq;
 	unsigned int old_weight;
+	const struct cred *cred = current_cred();
+	kuid_t euid = cred->euid;
 
 	if (weight > MAX_WEIGHT_WRR || weight < MIN_WEIGHT_WRR)
 		return -EINVAL;
@@ -168,6 +170,12 @@ int set_weight_wrr(struct task_struct *p, int weight) {
 	wrr_rq = &rq->wrr;
 	old_weight = wrr_se->weight;
 	wrr_se->weight = weight;
+	
+	//permission for weight increase
+	//only for admin
+	if((weight > old_weight) && (euid != 0)) {
+		return -EACCES;
+	}
 
 	//modify total weight
 	wrr_rq->wrr_weight_total -= old_weight;
