@@ -231,7 +231,6 @@ static struct task_struct* find_migratable_task_wrr(
 
         // cannot run in min_cpu: NO!
         if (!cpumask_test_cpu(min_cpu, tsk_cpus_allowed(p))) continue;
-
         // check weight condition
         if (max_weight - weight >= min_weight + weight) {
             // now p is migratable.
@@ -248,9 +247,13 @@ static struct task_struct* find_migratable_task_wrr(
 static void migrate_task_wrr(
         struct task_struct *p, int min_cpu, int max_cpu) {
     struct rq *src_rq = cpu_rq(max_cpu), *dst_rq = cpu_rq(min_cpu);
+	//TODO: print  total weight
+	printk("max before: %lu, min before: %lu\n", (&src_rq->wrr)->wrr_weight_total, (&dst_rq->wrr)->wrr_weight_total);
 	deactivate_task(src_rq, p, 0);
 	set_task_cpu(p, min_cpu);
 	activate_task(dst_rq, p, 0);
+	//TODO: print total weight
+	printk("max after: %lu, min after: %lu\n", (&src_rq->wrr)->wrr_weight_total, (&dst_rq->wrr)->wrr_weight_total);
 }
 
 static void wrr_load_balance(void) {
