@@ -1,4 +1,4 @@
-OBJ = fork32 trial multithread
+OBJ = fork32 trial multithread multischedule
 CC = arm-linux-gnueabi-gcc
 
 %.o: %.c
@@ -14,6 +14,9 @@ trial: trial.o
 
 multithread: multithread.o
 	$(CC) -I../include -o $@ $< -lpthread
+
+multischedule: multischedule.o
+	$(CC) -I../inlcude -o $@ $<
 
 clean: 
 	rm -rf *.o $(OBJ)
