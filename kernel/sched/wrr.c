@@ -204,7 +204,7 @@ static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
 }
 
 static void switched_to_wrr(struct rq *this_rq, struct task_struct *p) {
-    // TODO: we need to update total weight!
+    // we need to update total weight!
     set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
 }
 
