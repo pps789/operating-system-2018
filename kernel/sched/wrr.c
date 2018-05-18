@@ -192,8 +192,11 @@ int get_weight_wrr(struct task_struct *p) {
 }
 
 static void task_fork_wrr(struct task_struct *p) {
-    unsigned int parent_weight = get_weight_wrr(p->real_parent);
-    set_weight_wrr(p, parent_weight);
+    struct task_struct* parent = p->real_parent;
+    if (parent->policy == SCHED_WRR) {
+        unsigned int parent_weight = get_weight_wrr(p->real_parent);
+        p->wrr.weight = parent_weight;
+    }
 }
 
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
