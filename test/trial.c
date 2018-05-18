@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     struct timespec begin, end;
     long long i, tmp;
     long t;
-    long long num = 2, last = 9000000000000000000;
+    long long num = 2, last = 1000000000;
   
 
     if (argc != 2) {
@@ -27,11 +27,15 @@ int main(int argc, char* argv[]) {
     // set weight and error check
     c = syscall(SCHED_SETWEIGHT, getpid(), weight);
     if (c < 0) {
-        printf("WEIGHT SETTING FAILED.\n");
+        perror("WEIGHT SETTING FAILED: ");
         return -1;
     }
 
-    weight = syscall(SCHED_GETWEIGHT);
+    weight = syscall(SCHED_GETWEIGHT, getpid());
+    if (weight < 0) {
+        perror("WEIGHT GETTING FAILED: ");
+        return -1;
+    }
     printf("Process : %d, Weight : %d\n", getpid(), weight);
 
     // start

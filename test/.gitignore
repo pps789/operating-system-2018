@@ -1,3 +1,4 @@
 *.o
 fork32
 trial
+multithread
