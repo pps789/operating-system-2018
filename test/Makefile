@@ -1,4 +1,4 @@
-OBJ = fork32 trial multithread
+OBJ = fork32 workload multithread
 CC = arm-linux-gnueabi-gcc
 
 %.o: %.c
@@ -9,7 +9,7 @@ all : $(OBJ)
 fork32: fork32.o
 	$(CC) -I../include -o $@ $<
 
-trial: trial.o
+trial: workload.o
 	$(CC) -I../include -o $@ $<
 
 multithread: multithread.o
