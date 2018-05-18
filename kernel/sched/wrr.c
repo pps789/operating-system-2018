@@ -191,14 +191,6 @@ int get_weight_wrr(struct task_struct *p) {
 	return (int)wrr_se->weight;
 }
 
-static void task_fork_wrr(struct task_struct *p) {
-    struct task_struct* parent = p->real_parent;
-    if (parent->policy == SCHED_WRR) {
-        unsigned int parent_weight = get_weight_wrr(p->real_parent);
-        p->wrr.weight = parent_weight;
-    }
-}
-
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
     // nothing to do.
 }
@@ -347,7 +339,6 @@ const struct sched_class wrr_sched_class = {
 
 	.set_curr_task		= set_curr_task_wrr,
 	.task_tick		= task_tick_wrr,
-    .task_fork      = task_fork_wrr,
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
     .get_rr_interval         = get_rr_interval_wrr,

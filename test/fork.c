@@ -11,6 +11,23 @@
 #define SCHED_GETWEIGHT 381
 
 int main() {
-    syscall(SCHED_SETWEIGHT, 0, 20); // I am 20
+    int child, i;
 
+    for(i=1;i<=20;i++) {
+        syscall(SCHED_SETWEIGHT, 0, i); // I am 20
+        printf("root is %d, weight is %d\n", getpid(), syscall(SCHED_GETWEIGHT, 0));
+        child = fork();
+        if (child == 0) {
+            printf("child %d's weight is %d\n", getpid(), syscall(SCHED_GETWEIGHT, 0));
+            while(1);
+            return 0;
+        }
+        else if(child < 0) {
+            printf("WTF?!\n");
+            perror("");
+        }
+    }
+    while(1);
 
+    return 0;
+}
