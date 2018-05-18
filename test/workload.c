@@ -43,7 +43,8 @@ int main(int argc, char* argv[]) {
             wait(NULL);
             clock_gettime(CLOCK_MONOTONIC, &end);
 	        t = end.tv_sec - begin.tv_sec;
-	        printf("Number of pc: %d, Time: %ldsec\n\n", pnum, t);
+            if (i == pnum-1)
+            printf("Number of pc: %d, Time: %ldsec\n\n", pnum, t);
         }	
 	}
 //	clock_gettime(CLOCK_MONOTONIC, &end);
@@ -73,11 +74,8 @@ int trial_devision() {
         perror("WEIGHT GETTING FAILED: ");
         return -1;
     }
-    printf("Process : %d, Weight : %d\n", getpid(), weight);
+    //printf("Process : %d, Weight : %d\n", getpid(), weight);
 
-    // start
-    //clock_gettime(CLOCK_MONOTONIC, &begin);
-     
     for(i=2; i<=last; i++) {
         if (num % i == 0) {
             tmp++;
@@ -85,12 +83,7 @@ int trial_devision() {
     }   
         num++;
 
-    // end
-    //clock_gettime(CLOCK_MONOTONIC, &end);
-    
-    
-    t = end.tv_sec - begin.tv_sec;
-
-    printf("Weight : %d, Time : %ldsec\n", weight, t);
+    //t = end.tv_sec - begin.tv_sec;
+    //printf("Weight : %d, Time : %ldsec\n", weight, t);
     return 0;
 }
