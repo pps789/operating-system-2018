@@ -191,17 +191,12 @@ int get_weight_wrr(struct task_struct *p) {
 	return (int)wrr_se->weight;
 }
 
-static void task_fork_wrr(struct task_struct *p) {
-    unsigned int parent_weight = get_weight_wrr(p->real_parent);
-    set_weight_wrr(p, parent_weight);
-}
-
 static void switched_from_wrr(struct rq *this_rq, struct task_struct *task) {
     // nothing to do.
 }
 
 static void switched_to_wrr(struct rq *this_rq, struct task_struct *p) {
-    // TODO: we need to update total weight!
+    // we need to update total weight!
     set_weight_wrr(p, DEFAULT_WEIGHT_WRR);
 }
 
@@ -247,13 +242,9 @@ static struct task_struct* find_migratable_task_wrr(
 static void migrate_task_wrr(
         struct task_struct *p, int min_cpu, int max_cpu) {
     struct rq *src_rq = cpu_rq(max_cpu), *dst_rq = cpu_rq(min_cpu);
-	//TODO: print  total weight
-	printk(KERN_ALERT "max before: %lu, min before: %lu\n", (&src_rq->wrr)->wrr_weight_total, (&dst_rq->wrr)->wrr_weight_total);
 	deactivate_task(src_rq, p, 0);
 	set_task_cpu(p, min_cpu);
 	activate_task(dst_rq, p, 0);
-	//TODO: print total weight
-	printk(KERN_ALERT "max after: %lu, min after: %lu\n", (&src_rq->wrr)->wrr_weight_total, (&dst_rq->wrr)->wrr_weight_total);
 }
 
 static void wrr_load_balance(void) {
@@ -348,7 +339,6 @@ const struct sched_class wrr_sched_class = {
 
 	.set_curr_task		= set_curr_task_wrr,
 	.task_tick		= task_tick_wrr,
-    .task_fork      = task_fork_wrr,
 	.switched_from		= switched_from_wrr,
 	.switched_to		= switched_to_wrr,
     .get_rr_interval         = get_rr_interval_wrr,

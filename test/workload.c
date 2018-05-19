@@ -10,12 +10,12 @@
 #define SCHED_SETWEIGHT 380
 #define SCHED_GETWEIGHT 381
 
-int trial_devision();
+int trial_division(int);
 
 int main(int argc, char* argv[]) {
-	struct timespec begin, end;
-	int pnum;
-	int i;
+    struct timespec begin, end;
+    int prime, pnum, weight;
+    int i, status = 0;
     pid_t *pids;
     long dt, du;
 
@@ -30,40 +30,40 @@ int main(int argc, char* argv[]) {
     weight = atoi(argv[3]);
     syscall(SCHED_SETWEIGHT, 0, weight);
     pids = (pid_t*)malloc(sizeof(pid_t)*pnum);
-    
+
+    clock_gettime(CLOCK_MONOTONIC, &begin);
+
     for(i=0; i<pnum; i++) {
         pids[i]=fork();
-        if (pids[i] < 0) printf("Error\n");
-        else if (pids[i] == 0) {
-            trial_devision();
-            exit(0);
+        if (pids[i] < 0) {
+            printf("Error\n");
+            return 1;
         }
-        else {
-            wait(NULL);
-            clock_gettime(CLOCK_MONOTONIC, &end);
-	        t = end.tv_sec - begin.tv_sec;
-            if (i == pnum-1)
-            printf("Number of pc: %d, Time: %ldsec\n\n", pnum, t);
-        }	
-	}
-	return 0;
+        else if (pids[i] == 0) {
+            // child
+            trial_division(prime);
+            return 0;
+        }
+    }
+
+    while (wait(&status) > 0);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    dt = end.tv_sec - begin.tv_sec;
+    du = end.tv_nsec - begin.tv_nsec;
+    if (du < 0) {
+        dt--;
+        du += 1e9;
+    }
+    printf("Number of pc: %d, Time: %ld.%09ldsec\n\n", pnum, dt, du);
+
+    return 0;
 
 }
-int trial_devision() {
-    int c, weight;
-    struct timespec begin, end;
-    long long i, tmp;
-    long t;
-    long long num = 2, last = 1000000007;
-  
-    weight = rand()%19 + 1;
 
-    // set weight and error check
-    c = syscall(SCHED_SETWEIGHT, getpid(), weight);
-    if (c < 0) {
-        perror("WEIGHT SETTING FAILED: ");
-        return -1;
-    }
+int trial_division(int prime) {
+    int weight;
+    long long i, tmp = 0;
+    long t;
 
     weight = syscall(SCHED_GETWEIGHT, getpid());
     if (weight < 0) {
@@ -71,14 +71,11 @@ int trial_devision() {
         return -1;
     }
 
-    for(i=2; i<=last; i++) {
-        if (num % i == 0) {
+    for(i=2; i<=prime; i++) {
+        if (prime % i == 0) {
             tmp++;
         }
-    }   
-        num++;
+    }
 
-    //t = end.tv_sec - begin.tv_sec;
-    //printf("Weight : %d, Time : %ldsec\n", weight, t);
-    return 0;
+    return tmp;
 }

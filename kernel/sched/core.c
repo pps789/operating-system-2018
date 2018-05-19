@@ -1715,6 +1715,7 @@ void sched_fork(struct task_struct *p)
         /* WRR FIX */
         // RESET to SCHED_WRR.
         p->policy = SCHED_WRR;
+        p->wrr.weight = 10;
 
 		/*
 		 * We don't need the reset flag anymore after the fork. It has
@@ -1742,13 +1743,6 @@ void sched_fork(struct task_struct *p)
 	 * Silence PROVE_RCU.
 	 */
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
-
-    /* WRR FIX */
-#ifdef CONFIG_SMP
-    if (p->policy == SCHED_WRR) {
-        cpu = p->sched_class->select_task_rq(p, 0, 0);
-    }
-#endif
 
 	set_task_cpu(p, cpu);
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);

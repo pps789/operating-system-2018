@@ -1,4 +1,4 @@
-OBJ = fork32 workload multithread
+OBJ = fork32 workload multithread multischedule fork
 CC = arm-linux-gnueabi-gcc
 
 %.o: %.c
@@ -9,11 +9,17 @@ all : $(OBJ)
 fork32: fork32.o
 	$(CC) -I../include -o $@ $<
 
-trial: workload.o
+workload: workload.o
 	$(CC) -I../include -o $@ $<
 
 multithread: multithread.o
 	$(CC) -I../include -o $@ $< -lpthread
+
+multischedule: multischedule.o
+	$(CC) -I../inlcude -o $@ $<
+
+fork: fork.o
+	$(CC) -I../include -o $@ $<
 
 clean: 
 	rm -rf *.o $(OBJ)
