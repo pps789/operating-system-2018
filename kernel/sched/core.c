@@ -1715,6 +1715,7 @@ void sched_fork(struct task_struct *p)
         /* WRR FIX */
         // RESET to SCHED_WRR.
         p->policy = SCHED_WRR;
+        p->wrr.weight = 10;
 
 		/*
 		 * We don't need the reset flag anymore after the fork. It has
