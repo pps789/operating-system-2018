@@ -24,8 +24,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    printf("Test Start!\n");
-
     //start
     prime = atoi(argv[1]);
     pnum = atoi(argv[2]);
@@ -56,7 +54,7 @@ int main(int argc, char* argv[]) {
         dt--;
         du += 1e9;
     }
-    printf("Number of pc: %d, Time: %ld.%09ldsec\n\n", pnum, dt, du);
+    printf("Weight %d Process %d Time %ld.%09ld sec\n", weight, pnum, dt, du);
 
     return 0;
 
@@ -72,7 +70,6 @@ int trial_division(int prime) {
         perror("WEIGHT GETTING FAILED: ");
         return -1;
     }
-    printf("Process : %d, Weight : %d\n", getpid(), weight);
 
     for(i=2; i<=prime; i++) {
         if (prime % i == 0) {
