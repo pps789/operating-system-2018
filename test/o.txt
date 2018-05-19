@@ -1,0 +1,4 @@
+./workload 17 3 1
+Number of pc: 3, Time: 0.002641292sec
+./workload 17 3 2
+Number of pc: 3, Time: 0.066377458sec

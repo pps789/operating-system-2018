@@ -17,20 +17,19 @@ int main(int argc, char* argv[]) {
 	int pnum;
 	int i;
     pid_t *pids;
-	long t;
-	if(argc != 2) {
-		printf("INPUT ERROR\n");
-		return -1;
-	}
-    printf("Test Start!\n");
-    
+    long dt, du;
 
+    if(argc != 4) {
+        printf("Usage: ./workload (prime) (number of process) (weight)\n");
+        return 1;
+    }
 
-	//start
-	clock_gettime(CLOCK_MONOTONIC, &begin);
-    pnum = atoi(argv[1]);
+    //start
+    prime = atoi(argv[1]);
+    pnum = atoi(argv[2]);
+    weight = atoi(argv[3]);
+    syscall(SCHED_SETWEIGHT, 0, weight);
     pids = (pid_t*)malloc(sizeof(pid_t)*pnum);
-
     
     for(i=0; i<pnum; i++) {
         pids[i]=fork();
@@ -47,9 +46,6 @@ int main(int argc, char* argv[]) {
             printf("Number of pc: %d, Time: %ldsec\n\n", pnum, t);
         }	
 	}
-//	clock_gettime(CLOCK_MONOTONIC, &end);
-//	t = end.tv_sec - begin.tv_sec;
-//	printf("Number of pc: %d, Time: %ldsec\n\n", pnum, t);
 	return 0;
 
 }
@@ -74,7 +70,6 @@ int trial_devision() {
         perror("WEIGHT GETTING FAILED: ");
         return -1;
     }
-    //printf("Process : %d, Weight : %d\n", getpid(), weight);
 
     for(i=2; i<=last; i++) {
         if (num % i == 0) {
