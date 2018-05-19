@@ -1,0 +1,252 @@
+./workload 17942467 1 1
+Number of pc: 1, Time: 1.626865791sec
+./workload 17942467 1 4
+Number of pc: 1, Time: 1.658281501sec
+./workload 17942467 1 8
+Number of pc: 1, Time: 1.628242959sec
+./workload 17942467 1 12
+Number of pc: 1, Time: 1.632057958sec
+./workload 17942467 1 16
+Number of pc: 1, Time: 1.626322375sec
+./workload 17942467 1 20
+Number of pc: 1, Time: 1.628308916sec
+./workload 17942467 5 1
+Number of pc: 5, Time: 1.646997792sec
+./workload 17942467 5 4
+Number of pc: 5, Time: 1.644736584sec
+./workload 17942467 5 8
+Number of pc: 5, Time: 1.676015626sec
+./workload 17942467 5 12
+Number of pc: 5, Time: 1.640767542sec
+./workload 17942467 5 16
+Number of pc: 5, Time: 1.647016500sec
+./workload 17942467 5 20
+Number of pc: 5, Time: 1.635776833sec
+./workload 17942467 10 1
+Number of pc: 10, Time: 3.271484417sec
+./workload 17942467 10 4
+Number of pc: 10, Time: 3.627169875sec
+./workload 17942467 10 8
+Number of pc: 10, Time: 3.310829333sec
+./workload 17942467 10 12
+Number of pc: 10, Time: 3.303403168sec
+./workload 17942467 10 16
+Number of pc: 10, Time: 3.351581542sec
+./workload 17942467 10 20
+Number of pc: 10, Time: 3.425989125sec
+./workload 17942467 15 1
+Number of pc: 15, Time: 5.192184542sec
+./workload 17942467 15 4
+Number of pc: 15, Time: 5.133030668sec
+./workload 17942467 15 8
+Number of pc: 15, Time: 3.502453042sec
+./workload 17942467 15 12
+Number of pc: 15, Time: 3.564112792sec
+./workload 17942467 15 16
+Number of pc: 15, Time: 4.518349293sec
+./workload 17942467 15 20
+Number of pc: 15, Time: 4.144429917sec
+./workload 17942467 20 1
+Number of pc: 20, Time: 6.051299876sec
+./workload 17942467 20 4
+Number of pc: 20, Time: 6.354734334sec
+./workload 17942467 20 8
+Number of pc: 20, Time: 5.399502168sec
+./workload 17942467 20 12
+Number of pc: 20, Time: 5.313593792sec
+./workload 17942467 20 16
+Number of pc: 20, Time: 4.281512501sec
+./workload 17942467 20 20
+Number of pc: 20, Time: 4.774740168sec
+./workload 17942467 25 1
+Number of pc: 25, Time: 7.789975085sec
+./workload 17942467 25 4
+Number of pc: 25, Time: 7.125401334sec
+./workload 17942467 25 8
+Number of pc: 25, Time: 6.904950293sec
+./workload 17942467 25 12
+Number of pc: 25, Time: 6.575312043sec
+./workload 17942467 25 16
+Number of pc: 25, Time: 6.790521751sec
+./workload 17942467 25 20
+Number of pc: 25, Time: 7.517819793sec
+./workload 17942467 30 1
+Number of pc: 30, Time: 10.319383418sec
+./workload 17942467 30 4
+Number of pc: 30, Time: 8.362269792sec
+./workload 17942467 30 8
+Number of pc: 30, Time: 9.283226710sec
+./workload 17942467 30 12
+Number of pc: 30, Time: 7.927389918sec
+./workload 17942467 30 16
+Number of pc: 30, Time: 7.870160084sec
+./workload 17942467 30 20
+Number of pc: 30, Time: 7.926091501sec
+./workload 17942467 35 1
+Number of pc: 35, Time: 13.777456794sec
+./workload 17942467 35 4
+Number of pc: 35, Time: 8.259665293sec
+./workload 17942467 35 8
+Number of pc: 35, Time: 9.897820126sec
+./workload 17942467 35 12
+Number of pc: 35, Time: 9.575019918sec
+./workload 17942467 35 16
+Number of pc: 35, Time: 8.963369376sec
+./workload 17942467 35 20
+Number of pc: 35, Time: 10.341388210sec
+./workload 17942467 40 1
+Number of pc: 40, Time: 16.746513419sec
+./workload 17942467 40 4
+Number of pc: 40, Time: 10.045748918sec
+./workload 17942467 40 8
+Number of pc: 40, Time: 10.474730252sec
+./workload 17942467 40 12
+Number of pc: 40, Time: 10.781758168sec
+./workload 17942467 40 16
+Number of pc: 40, Time: 10.918753793sec
+./workload 17942467 40 20
+Number of pc: 40, Time: 10.195153334sec
+./workload 17942467 45 1
+Number of pc: 45, Time: 15.128032460sec
+./workload 17942467 45 4
+Number of pc: 45, Time: 12.190770543sec
+./workload 17942467 45 8
+Number of pc: 45, Time: 11.706924251sec
+./workload 17942467 45 12
+Number of pc: 45, Time: 11.489552418sec
+./workload 17942467 45 16
+Number of pc: 45, Time: 11.767031585sec
+./workload 17942467 45 20
+Number of pc: 45, Time: 11.959754251sec
+./workload 17942467 50 1
+Number of pc: 50, Time: 17.256673835sec
+./workload 17942467 50 4
+Number of pc: 50, Time: 14.127286044sec
+./workload 17942467 50 8
+Number of pc: 50, Time: 12.974491835sec
+./workload 17942467 50 12
+Number of pc: 50, Time: 13.350275709sec
+./workload 17942467 50 16
+Number of pc: 50, Time: 12.853953501sec
+./workload 17942467 50 20
+Number of pc: 50, Time: 13.334409335sec
+./workload 17942467 55 1
+Number of pc: 55, Time: 17.004019085sec
+./workload 17942467 55 4
+Number of pc: 55, Time: 15.406859418sec
+./workload 17942467 55 8
+Number of pc: 55, Time: 14.743752336sec
+./workload 17942467 55 12
+Number of pc: 55, Time: 13.444795001sec
+./workload 17942467 55 16
+Number of pc: 55, Time: 15.306655252sec
+./workload 17942467 55 20
+Number of pc: 55, Time: 15.050252335sec
+./workload 17942467 60 1
+Number of pc: 60, Time: 19.929403919sec
+./workload 17942467 60 4
+Number of pc: 60, Time: 16.533675252sec
+./workload 17942467 60 8
+Number of pc: 60, Time: 15.486197586sec
+./workload 17942467 60 12
+Number of pc: 60, Time: 15.677623835sec
+./workload 17942467 60 16
+Number of pc: 60, Time: 15.620475544sec
+./workload 17942467 60 20
+Number of pc: 60, Time: 15.410717544sec
+./workload 17942467 65 1
+Number of pc: 65, Time: 20.952462461sec
+./workload 17942467 65 4
+Number of pc: 65, Time: 17.290002919sec
+./workload 17942467 65 8
+Number of pc: 65, Time: 16.793366127sec
+./workload 17942467 65 12
+Number of pc: 65, Time: 17.409952836sec
+./workload 17942467 65 16
+Number of pc: 65, Time: 16.787377085sec
+./workload 17942467 65 20
+Number of pc: 65, Time: 16.752879794sec
+./workload 17942467 70 1
+Number of pc: 70, Time: 24.275850170sec
+./workload 17942467 70 4
+Number of pc: 70, Time: 19.839597211sec
+./workload 17942467 70 8
+Number of pc: 70, Time: 19.452556669sec
+./workload 17942467 70 12
+Number of pc: 70, Time: 17.607491002sec
+./workload 17942467 70 16
+Number of pc: 70, Time: 17.470455835sec
+./workload 17942467 70 20
+Number of pc: 70, Time: 18.278430627sec
+./workload 17942467 75 1
+Number of pc: 75, Time: 24.747611587sec
+./workload 17942467 75 4
+Number of pc: 75, Time: 21.392910711sec
+./workload 17942467 75 8
+Number of pc: 75, Time: 19.344271585sec
+./workload 17942467 75 12
+Number of pc: 75, Time: 18.452716877sec
+./workload 17942467 75 16
+Number of pc: 75, Time: 19.289141878sec
+./workload 17942467 75 20
+Number of pc: 75, Time: 19.064736336sec
+./workload 17942467 80 1
+Number of pc: 80, Time: 26.605231211sec
+./workload 17942467 80 4
+Number of pc: 80, Time: 20.705072835sec
+./workload 17942467 80 8
+Number of pc: 80, Time: 20.849265169sec
+./workload 17942467 80 12
+Number of pc: 80, Time: 18.860972127sec
+./workload 17942467 80 16
+Number of pc: 80, Time: 20.581053586sec
+./workload 17942467 80 20
+Number of pc: 80, Time: 19.497827877sec
+./workload 17942467 85 1
+Number of pc: 85, Time: 23.140964669sec
+./workload 17942467 85 4
+Number of pc: 85, Time: 25.378606045sec
+./workload 17942467 85 8
+Number of pc: 85, Time: 21.316518669sec
+./workload 17942467 85 12
+Number of pc: 85, Time: 19.330142544sec
+./workload 17942467 85 16
+Number of pc: 85, Time: 22.920395502sec
+./workload 17942467 85 20
+Number of pc: 85, Time: 21.398921836sec
+./workload 17942467 90 1
+Number of pc: 90, Time: 21.518170002sec
+./workload 17942467 90 4
+Number of pc: 90, Time: 25.900759795sec
+./workload 17942467 90 8
+Number of pc: 90, Time: 23.681230753sec
+./workload 17942467 90 12
+Number of pc: 90, Time: 22.836497836sec
+./workload 17942467 90 16
+Number of pc: 90, Time: 23.187336169sec
+./workload 17942467 90 20
+Number of pc: 90, Time: 20.718378377sec
+./workload 17942467 95 1
+Number of pc: 95, Time: 28.170004379sec
+./workload 17942467 95 4
+Number of pc: 95, Time: 25.392254878sec
+./workload 17942467 95 8
+Number of pc: 95, Time: 24.221644836sec
+./workload 17942467 95 12
+Number of pc: 95, Time: 20.768587836sec
+./workload 17942467 95 16
+Number of pc: 95, Time: 20.793926627sec
+./workload 17942467 95 20
+Number of pc: 95, Time: 25.249732045sec
+./workload 17942467 100 1
+Number of pc: 100, Time: 31.631875546sec
+./workload 17942467 100 4
+Number of pc: 100, Time: 27.171386794sec
+./workload 17942467 100 8
+Number of pc: 100, Time: 26.085840587sec
+./workload 17942467 100 12
+Number of pc: 100, Time: 25.235599337sec
+./workload 17942467 100 16
+Number of pc: 100, Time: 24.649182587sec
+./workload 17942467 100 20
+Number of pc: 100, Time: 26.847863795sec

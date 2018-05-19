@@ -1,8 +1,7 @@
 #!/bin/bash
 i=1
 j=1
-num=13
-#num=179424673
+num=17942467
 for j in 1 4 8 12 16 20
 do
     echo ./workload $num 1 $j
