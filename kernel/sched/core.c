@@ -1743,13 +1743,6 @@ void sched_fork(struct task_struct *p)
 	 */
 	raw_spin_lock_irqsave(&p->pi_lock, flags);
 
-    /* WRR FIX */
-#ifdef CONFIG_SMP
-    if (p->policy == SCHED_WRR) {
-        cpu = p->sched_class->select_task_rq(p, 0, 0);
-    }
-#endif
-
 	set_task_cpu(p, cpu);
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 
