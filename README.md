@@ -122,9 +122,11 @@ Project3
 > First, we fixed number of processes, and changed weight.
 
 > ![proj3_p1.png](./images/proj3_p1.png)
+
 > If the number of process is 1, they took almost identical times.
 
 > ![proj3_p60.png](./images/proj3_p60.png)
+
 > However, if we increased number of processes, small weight cases took much times.
 > The reason we thought is context switch overhead.
 > If the weight is small, context switch occures more than large weight cases.
@@ -132,16 +134,19 @@ Project3
 > We have 8 cores for artik 10, so it took less time.
 
 > ![proj3_p100.png](./images/proj3_p100.png)
+
 > If we increase number of process much more, gap of excution times between weight 1 and weight 4 increased.
 > Total excution time was increased, so number of context switch was also increased.
 
 > For now, we fixed weight, and changed number of processes.
 
 > ![proj3_w1.png](./images/proj3_w1.png)
+
 > We can notice that total execution time is linearly increasing w.r.t. number of processes.
 
 > ![proj3_w12.png](./images/proj3_w12.png)
 > ![proj3_w20.png](./images/proj3_w20.png)
+
 > However, if we increased weight, number of context switch is decreased, so total excution times were decreased.
 > But we can still notice linearity of execution times.
 
