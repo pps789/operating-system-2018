@@ -9,9 +9,9 @@ Project3
 
 > ## How to build
 > 1. To build kernel, type `'./build`
->   * It builds our own linux kernel.
+>     * It builds our own linux kernel.
 > 2. To test, move to 'test' folder, and type `make all`.
->   * It builds few test codes, described below.
+>     * It builds few test codes, described below.
 
 > ## High-level Design
 > 1. In `include/uapi/linux/sched.h`, add `SCHED_WRR` in value of 6 as a new scheduler. 
@@ -53,6 +53,33 @@ Project3
 > >	.switched_to        = switched_to_wrr,
 > >	.get_rr_interval         = get_rr_interval_wrr,
 > > ```
+
+> > Each run queue has a member named `wrr`, which is `struct wrr_rq`.
+> > ```C
+> > struct wrr_rq {
+> >     unsigned int wrr_nr_running; // size of run queue
+> >     struct list_head wrr_rq_list; // list of current run queue
+> >     unsigned long wrr_weight_total; // total weight of current run queue
+> > };
+> > ```
+> > The first element of `wrr_rq_list` is current running task if only if such list is not empty.
+> > That `wrr_rq_list` is linked to `struct task_struct`'s member `struct sched_wrr_entity`, named `wrr`.
+> > ```C
+> > struct sched_wrr_entity {
+> >     struct list_head run_list; // linked to other task_struct, or wrr_rq
+> >     unsigned int time_slice;
+> >     unsigned int weight;
+> > };
+> > ```
+
+> > Each tick we decrease `time_slice` of the current running task.
+> > If it spent all time slices, we just rotate the run queue to put the task to the back of the run queue.
+> > The logic of above is implemented in function `task_tick_wrr`.
+
+> > Function `select_task_rq_wrr` is designed to pick the cpu which has the lowest weight.
+> > That function is called during fork, so new tasks can choose cpus properly.
+
+> > For chaning of sched classes, we just modified `rt_sched_class.next` to `&wrr_sched_class` in the file `kernel/sched/rt.c`.
 
 > > ### About load balancing
 > >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, function `wrr_load_balance`. A random processor picks two proccessors, which has the biggest weight and the other has smallest weight. Then, running proccessor picks a task to transfer from biggest to smallest. After the transaction, processor with biggest weight should have bigger weight than another. 
