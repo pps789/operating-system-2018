@@ -40,7 +40,7 @@ Project3
 > >	.yield_task         = yield_task_wrr,
 > >	.check_preempt_curr = check_preempt_curr_wrr,
 > >	.pick_next_task     = pick_next_task_wrr,
-> >	.put_prev_task      = put_prev_task_wrr,```
+> >	.put_prev_task      = put_prev_task_wrr,
 > >	
 > >	 #ifdef CONFIG_SMP
 > >	.select_task_rq     = select_task_rq_wrr,
