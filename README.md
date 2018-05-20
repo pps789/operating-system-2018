@@ -115,6 +115,11 @@ Project3
 > > In the file `kernel/sched/core.c`, we modified some codes to our new scheduler can work properly.
 > > For example, system call `sched_setscheduler` should support our WRR scheduler.
 
+> > We added few test codes in folder `test`.
+> > 1. `fork.c` tests if weight is inherited for forked tasks.
+> > 1. `multischedule.c` tests system call `sched_setscheduler` and `sched_getscheduler`.
+> > 1. `multithread.c` tests system call `sched_setweight` and `sched_getweight` in mutithread programs.
+
 > ## Investigation
 > We did trial division method to factorize number `TODO` for each process.
 > We measured total execution time of number of forked processes with same weight.
@@ -154,4 +159,5 @@ Project3
 
 > ## Lessons Learned
 > 1. Scheduler is so complicated and delicate.
-> 2. Adding new feature is very hard! I read code much more than I wrote.
+> 1. Adding new feature is very hard! I read code much more than I wrote.
+> 1. To print a lot of things in kernel leads to kernel panic. It makes hard to debug.
