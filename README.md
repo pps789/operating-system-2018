@@ -43,12 +43,12 @@ Project3
 };`
 
 > > ### About load balancing
-> >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, `wrr_load_balance`. A random processor picks two proccessors, one has the biggest weight and other has the smallest. Then, running proccessor picks a task which is the biggest among tasks 
+> >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, function `wrr_load_balance`. A random processor picks two proccessors, which has the biggest weight and the other has smallest weight. Then, running proccessor picks a task to transfer from biggest to smallest. After the transaction, processor with biggest weight should have bigger weight than another. 
 
 > > ### About System Calls
-> > In this project, we implemented two system calls: `__sched_setweight` and `__sched_getweight`. These system calls are implemented in `/kernel/sched/core.c`.Both system call first locks the task of given pid. Then,  
+> > In this project, we implemented two system calls: `__sched_setweight` and `__sched_getweight`. These system calls are implemented in `/kernel/sched/core.c`. Both system call first locks the task of given pid. Then, they call functions in `kernel/sched/wrr.c`, `set_weight_wrr` and `get_weight_wrr`. These functions work just as their names imply. Only root user, or the user who run the process can set weight of process. Additionally, only root user can make weight larger than before.
 
-> ## Inbestigation
+> ## Investigation
 > hahahahaha 
 
 > ## Lessons Learned
