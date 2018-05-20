@@ -28,12 +28,14 @@ Project3
 	.yield_task         = yield_task_wrr,
 	.check_preempt_curr = check_preempt_curr_wrr,
 	.pick_next_task     = pick_next_task_wrr,
-	.put_prev_task      = put_prev_task_wrr,
-#ifdef CONFIG_SMP
+	.put_prev_task      = put_prev_task_wrr,```
+	
+	#ifdef CONFIG_SMP
 	.select_task_rq     = select_task_rq_wrr,
 	.rq_online      = rq_online_wrr,
 	.rq_offline      = rq_offline_wrr,
-#endif
+	
+	#endif
 	.set_curr_task      = set_curr_task_wrr,
 	.task_tick      = task_tick_wrr,
 	.task_fork      = task_fork_wrr,
