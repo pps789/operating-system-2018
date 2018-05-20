@@ -22,7 +22,7 @@ Project3
 > ## Implementation
 > > ### About Weighted Round Robing Scheduler.
 > > We constructed wrr_sched_class in `wrr.c`. Wrr.c contains following functions and additionally load balancing functions.
-> >	`.next       = &fair_sched_class,\n
+> >	`.next       		= &fair_sched_class,\n
 	.enqueue_task       = enqueue_task_wrr,\n
 	.dequeue_task       = dequeue_task_wrr,\n
 	.yield_task         = yield_task_wrr,\n
@@ -45,6 +45,11 @@ Project3
 > > ### About load balancing
 > >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, `wrr_load_balance`. A random processor picks two proccessors, one has the biggest weight and other has the smallest. Then, running proccessor picks a task which is the biggest among tasks 
 
+> > ### About System Calls
+> > In this project, we implemented two system calls: `__sched_setweight` and `__sched_getweight`. These system calls are implemented in `/kernel/sched/core.c`.Both system call first locks the task of given pid. Then,  
+
+> ## Inbestigation
+> hahahahaha 
 
 > ## Lessons Learned
 > 1. Scheduler is so complicated and delicate.
