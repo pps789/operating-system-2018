@@ -70,11 +70,21 @@ int trial_division(int prime) {
         perror("WEIGHT GETTING FAILED: ");
         return -1;
     }
+//	printf("%d = ", prime);
+	i = 2;
+	while(prime > 1) {
 
-    for(i=2; i<=prime; i++) {
         if (prime % i == 0) {
-            tmp++;
-        }
+			prime /= i;
+/*			if(prime == 1) {
+				printf("%lld\n", i);
+			}
+			else
+				printf("%lld * ", i);
+*/			i = 2;
+		}
+		else
+			i++;
     }
 
     return tmp;
