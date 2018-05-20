@@ -41,8 +41,7 @@ Project3
 > >	.task_fork      = task_fork_wrr,
 > >	.switched_from      = switched_from_wrr,
 > >	.switched_to        = switched_to_wrr,
-> >	.get_rr_interval         = get_rr_interval_wrr,
-> >};```
+> >	.get_rr_interval         = get_rr_interval_wrr,```
 
 > > ### About load balancing
 > >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, function `wrr_load_balance`. A random processor picks two proccessors, which has the biggest weight and the other has smallest weight. Then, running proccessor picks a task to transfer from biggest to smallest. After the transaction, processor with biggest weight should have bigger weight than another. 
