@@ -19,9 +19,11 @@ Project3
 > 3. In `kernel/sched/sched.h`, add `struct wrr_rq` as a new member of run queue.
 > 4. In `include/linux/sched.h`, add `struct sched_wrr_entity` as a new element of `task_struct`.
 > 5. In `kernel/sched/core.c`, add new functions that works for weighted round robin scheduler.
+> 6. In `kernel/kthread.c`, modify some codes to change scheduling policy of `kthread`.
+> 7. In `include/linux/init_task.h`, modify macro `INIT_TASK` to make our scheduler default.
 
 > ## Implementation
-> > ### About Weighted Round Robing Scheduler.
+> > ### About Weighted Round Robing Scheduler
 > > We constructed `wrr_sched_class` in `wrr.c`.
 > >
 > > ```C
@@ -83,7 +85,7 @@ Project3
 
 > > We have nothing to do to inherit weights for child processes, because `sched_wrr_entity` will be copied into forked process.
 
-> > ### About load balancing
+> > ### About Load Balancing
 > > To make our scheduler more efficient, we execute load balancing function in every 2 seconds.
 > > It is implemented in `wrr.c`, function `wrr_load_balance`.
 > > A random processor picks two proccessors, which has the biggest weight and the other has smallest weight.
@@ -92,7 +94,7 @@ Project3
 > > Locking and migrating tasks are implemented in function `wrr_load_balance`.
 > > To do this, we did refer to `kernel/sched/fair.c` a lot.
 > > Picking processor which performs load balancing is implemented in function `wrr_trigger_load_balance`.
-> > To do this, we defined timestamp which controlled by spin lock,
+> > To do this, we defined timestamp which is controlled by spin lock,
 > > ```C
 > > // jiffies of NEXT balance time
 > > unsigned long wrr_next_balance;
@@ -107,9 +109,13 @@ Project3
 > > Only root user, or the user who run the process can set weight of process.
 > > Additionally, only root user can make weight larger than before.
 
+> > ### About Other Modified Codes
+> > In the file `kernel/sched/core.c`, we modified some codes to our new scheduler can work properly.
+> > For example, system call `sched_setscheduler` should support our WRR scheduler.
+
 > ## Investigation
 > hahahahaha 
 
 > ## Lessons Learned
 > 1. Scheduler is so complicated and delicate.
-
+> 2. Adding new feature is very hard! I read code much more than I wrote.
