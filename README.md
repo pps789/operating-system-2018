@@ -103,9 +103,11 @@ Project3
 > > ### About System Calls
 > > In this project, we implemented two system calls: `sched_setweight` and `sched_getweight`.
 > > These system calls are implemented in `/kernel/sched/core.c`.
-> > Both system call first locks the task of given pid.
+> > Both system call first locks the task of given pid (kernel perspective).
 > > Then, they call functions in `kernel/sched/wrr.c`, `set_weight_wrr` and `get_weight_wrr`.
 > > These functions work just as their names imply.
+> > Note that both system calls adjust weight of process whose `struct task_struct`'s field `pid` is identical to parameter `pid`,
+> > so that the only one task's weight will be changed or accessed.
 > > Only root user, or the user who run the process can set weight of process.
 > > Additionally, only root user can make weight larger than before.
 
