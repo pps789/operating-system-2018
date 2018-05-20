@@ -121,7 +121,7 @@ Project3
 > > 1. `multithread.c` tests system call `sched_setweight` and `sched_getweight` in mutithread programs.
 
 > ## Investigation
-> We did trial division method to factorize number `TODO` for each process.
+> We did trial division method to factorize number `17942473` for each process.
 > We measured total execution time of number of forked processes with same weight.
 > We did experimented with changing weights and number of processes.
 > Test code is in `test/workload.c`, and `test/test_shell.sh`.
@@ -132,12 +132,12 @@ Project3
 
 > If the number of process is 1, they took almost identical times.
 
-> ![proj3_p60.png](./images/proj3_p60.png)
+> ![proj3_p50.png](./images/proj3_p50.png)
 
 > However, if we increased number of processes, small weight cases took much times.
 > The reason we thought is context switch overhead.
 > If the weight is small, context switch occures more than large weight cases.
-> We also notice that total excution time is not 60 times than one-process case.
+> We also notice that total excution time is not 50 times than one-process case.
 > We have 8 cores for artik 10, so it took less time.
 
 > ![proj3_p100.png](./images/proj3_p100.png)
