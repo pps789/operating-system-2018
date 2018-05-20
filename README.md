@@ -81,8 +81,22 @@ Project3
 
 > > For chaning of sched classes, we just modified `rt_sched_class.next` to `&wrr_sched_class` in the file `kernel/sched/rt.c`.
 
+> > We have nothing to do to inherit weights for child processes, because `sched_wrr_entity` will be copied into forked process.
+
 > > ### About load balancing
-> >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, function `wrr_load_balance`. A random processor picks two proccessors, which has the biggest weight and the other has smallest weight. Then, running proccessor picks a task to transfer from biggest to smallest. After the transaction, processor with biggest weight should have bigger weight than another. 
+> > To make our scheduler more efficient, we execute load balancing function in every 2 seconds.
+> > It is implemented in `wrr.c`, function `wrr_load_balance`.
+> > A random processor picks two proccessors, which has the biggest weight and the other has smallest weight.
+> > Then, running proccessor picks a task to transfer from biggest to smallest.
+> > After the transaction, processor with biggest weight should have bigger or same weight than another.
+> > Locking and migrating tasks are implemented in function `wrr_load_balance`.
+> > To do this, we did refer to `kernel/sched/fair.c` a lot.
+> > Picking processor which performs load balancing is implemented in function `wrr_trigger_load_balance`.
+> > To do this, we defined timestamp which controlled by spin lock,
+> > ```C
+> > // jiffies of NEXT balance time
+> > unsigned long wrr_next_balance;
+> > ```
 
 > > ### About System Calls
 > > In this project, we implemented two system calls: `sched_setweight` and `sched_getweight`.
