@@ -22,25 +22,25 @@ Project3
 > ## Implementation
 > > ### About Weighted Round Robing Scheduler.
 > > We constructed wrr_sched_class in `wrr.c`. Wrr.c contains following functions and additionally load balancing functions.
-> >	`.next       		= &fair_sched_class,\n
-	.enqueue_task       = enqueue_task_wrr,\n
-	.dequeue_task       = dequeue_task_wrr,\n
-	.yield_task         = yield_task_wrr,\n
-	.check_preempt_curr = check_preempt_curr_wrr,\n
-	.pick_next_task     = pick_next_task_wrr,\n
-	.put_prev_task      = put_prev_task_wrr,\n
-#ifdef CONFIG_SMP\n
-	.select_task_rq     = select_task_rq_wrr,\n
-	.rq_online      = rq_online_wrr,\n
-	.rq_offline      = rq_offline_wrr,\n
-#endif\n
-	.set_curr_task      = set_curr_task_wrr,\n
-	.task_tick      = task_tick_wrr,\n
-	.task_fork      = task_fork_wrr,\n
-	.switched_from      = switched_from_wrr,\n
-	.switched_to        = switched_to_wrr,\n
-	.get_rr_interval         = get_rr_interval_wrr,\n
-};`
+> >	```.next       		= &fair_sched_class,
+	.enqueue_task       = enqueue_task_wrr,
+	.dequeue_task       = dequeue_task_wrr,
+	.yield_task         = yield_task_wrr,
+	.check_preempt_curr = check_preempt_curr_wrr,
+	.pick_next_task     = pick_next_task_wrr,
+	.put_prev_task      = put_prev_task_wrr,
+#ifdef CONFIG_SMP
+	.select_task_rq     = select_task_rq_wrr,
+	.rq_online      = rq_online_wrr,
+	.rq_offline      = rq_offline_wrr,
+#endif
+	.set_curr_task      = set_curr_task_wrr,
+	.task_tick      = task_tick_wrr,
+	.task_fork      = task_fork_wrr,
+	.switched_from      = switched_from_wrr,
+	.switched_to        = switched_to_wrr,
+	.get_rr_interval         = get_rr_interval_wrr,
+};```
 
 > > ### About load balancing
 > >  To make our scheduler more efficient, we execute load balancing function in every 2 seconds. It is implemented in `wrr.c`, function `wrr_load_balance`. A random processor picks two proccessors, which has the biggest weight and the other has smallest weight. Then, running proccessor picks a task to transfer from biggest to smallest. After the transaction, processor with biggest weight should have bigger weight than another. 
