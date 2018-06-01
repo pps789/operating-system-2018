@@ -1216,7 +1216,8 @@ static int ext2_setsize(struct inode *inode, loff_t newsize)
 	__ext2_truncate_blocks(inode, newsize);
 
 	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
-	if (inode_needs_sync(inode)) {
+    
+    if (inode_needs_sync(inode)) {
 		sync_mapping_buffers(inode->i_mapping);
 		sync_inode_metadata(inode, 1);
 	} else {
@@ -1347,7 +1348,8 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	inode->i_mtime.tv_sec = (signed)le32_to_cpu(raw_inode->i_mtime);
 	inode->i_atime.tv_nsec = inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
 	ei->i_dtime = le32_to_cpu(raw_inode->i_dtime);
-	/* We now have enough fields to check if the inode was active or not.
+	
+    /* We now have enough fields to check if the inode was active or not.
 	 * This is needed because nfsd might try to access dead inodes
 	 * the test is that same one that e2fsck uses
 	 * NeilBrown 1999oct15

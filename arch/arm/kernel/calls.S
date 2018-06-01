@@ -390,7 +390,7 @@
 		CALL(sys_kcmp)
 		CALL(sys_finit_module)
 /* 380 */	CALL(set_gps_location)
-
+            CALL(get_gps_location)
 #ifndef syscalls_counted
 .equ syscalls_padding, ((NR_syscalls + 3) & ~3) - NR_syscalls
 #define syscalls_counted

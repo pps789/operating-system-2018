@@ -306,7 +306,14 @@ struct ext2_inode {
 	__le16	i_links_count;	/* Links count */
 	__le32	i_blocks;	/* Blocks count */
 	__le32	i_flags;	/* File flags */
-	union {
+    #ifdef CONFIG_EXT2_FS
+    __le32  i_lat_integer;
+    __le32  i_lat_fractional;
+    __le32  i_lng_integer;
+    __le32  i_lng_fractional;
+    __le32  i_accuracy;
+    #endif 
+    union {
 		struct {
 			__le32  l_i_reserved1;
 		} linux1;
@@ -654,7 +661,13 @@ struct ext2_inode_info {
 	__u32	i_file_acl;
 	__u32	i_dir_acl;
 	__u32	i_dtime;
-
+    #ifdef CONFIG_EXT2_FS
+    __u32  i_lat_integer;
+    __u32  i_lat_fractional;
+    __u32  i_lng_integer;
+    __u32  i_lng_fractional;
+    __u32  i_accuracy;
+    #endif
 	/*
 	 * i_block_group is the number of the block group which contains
 	 * this file's inode.  Constant across the lifetime of the inode,
