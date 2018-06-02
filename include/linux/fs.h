@@ -1541,7 +1541,7 @@ struct inode_operations {
 	struct posix_acl * (*get_acl)(struct inode *, int);
     
     int (*set_gps_location)(struct inode *);
-    int (*get_gps_location)(struct inode*, struct gps_location);
+    int (*get_gps_location)(struct inode *, struct gps_location *);
 
 	int (*readlink) (struct dentry *, char __user *,int);
 	void (*put_link) (struct dentry *, struct nameidata *, void *);
