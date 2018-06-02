@@ -389,6 +389,7 @@ struct ext2_inode {
 	__u16	i_links_count;	/* Links count */
 	__u32	i_blocks;	/* Blocks count */
 	__u32	i_flags;	/* File flags */
+	//gps location variables
     __le32  i_lat_integer;
     __le32  i_lat_fractional;
     __le32  i_lng_integer;
@@ -442,7 +443,8 @@ struct ext2_inode_large {
 	__u16	i_links_count;	/* Links count */
 	__u32	i_blocks;	/* Blocks count */
 	__u32	i_flags;	/* File flags */
-    __le32  i_lat_integer;
+    //gps location variables
+	__le32  i_lat_integer;
     __le32  i_lat_fractional;
     __le32  i_lng_integer;
     __le32  i_lng_fractional;
