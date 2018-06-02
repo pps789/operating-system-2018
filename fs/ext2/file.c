@@ -21,6 +21,8 @@
 #include <linux/time.h>
 #include <linux/pagemap.h>
 #include <linux/quotaops.h>
+#include <linux/gps.h>
+#include <linux/spinlock.h>
 #include "ext2.h"
 #include "xattr.h"
 #include "acl.h"
@@ -59,17 +61,19 @@ int ext2_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 /* location setting functions*/
 int ext2_set_gps_location(struct inode *inode) {
     struct ext2_inode_info *ei;
-	struct gps_location curr_gps;
-	// TODO: set curr_gps as current gps
 
 	if (inode == NULL)
         return -EINVAL;
     ei = EXT2_I(inode);
+
+    spin_lock(&gps_spinlock);
 	ei->i_lat_integer = curr_gps.lat_integer;
 	ei->i_lat_fractional = curr_gps.lat_fractional;
 	ei->i_lng_integer = curr_gps.lng_integer;
 	ei->i_lng_fractional = curr_gps.lng_fractional;
 	ei->i_accuracy = curr_gps.accuracy;
+    spin_unlock(&gps_spinlock);
+
 	return 0;
 }
 

@@ -33,6 +33,8 @@ int set_gps_location(struct gps_location __user *loc) {
     if ((gps.lng_integer == -180 || gps.lng_integer == 180)
             && (gps.lng_fractional > 0))
         return -EINVAL;
+    if (gps.accuracy < 0)
+        return -EINVAL;
 
     spin_lock(&gps_spinlock);
     curr_gps = gps;
