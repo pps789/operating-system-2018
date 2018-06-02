@@ -23,7 +23,6 @@
  */
 
 #include <linux/time.h>
-#include <uapi/asm-generic/errno-base.h>
 #include <linux/highuid.h>
 #include <linux/pagemap.h>
 #include <linux/quotaops.h>
@@ -33,7 +32,7 @@
 #include <linux/fiemap.h>
 #include <linux/namei.h>
 #include <linux/aio.h>
-#include <linux/gps.h>
+#include "ext2.h"
 #include "acl.h"
 #include "xip.h"
 #include "xattr.h"
@@ -1306,35 +1305,6 @@ void ext2_get_inode_flags(struct ext2_inode_info *ei)
 	if (flags & S_DIRSYNC)
 		ei->i_flags |= EXT2_DIRSYNC_FL;
 }
-
-/* location setting functions*/
-
-int ext2_set_gps_location(struct inode *inode) {
-	struct gps_location curr_gps;
-	//TODO: set curr_gps as current gps
-
-	if(inode == null)
-		return -EINVAL;
-	inode->i_lat_integer = curr_gps->lat_integer;
-	inode->i_lat_fractional = curr_gps->lat_fractional;
-	inode->i_lng_integer = curr_gps->lng_integer;
-	inode->i_lng_fractional = curr_gps->lng_fractional;
-	inode->i_accuracy = curr_gps->accuracy;
-	return 0;
-}
-
-int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) {
-	if(inode == null)
-		return -EINVAL;
-	//TODO: get permission depend on gps
-	gps.lat_integer = inode->i_lat_integer;
-	gps.lat_fractional = inode->i_lat_fractional;
-	gps.lng_integer = inode->i_lng_integer;
-	gps.lng_fractional = inode->i_lng_fractional;
-	gps.accuracy = inode->i_accuracy;
-	return 0;
-}
-
 
 struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 {

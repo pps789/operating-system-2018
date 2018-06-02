@@ -56,6 +56,37 @@ int ext2_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 	return ret;
 }
 
+/* location setting functions*/
+int ext2_set_gps_location(struct inode *inode) {
+    struct ext2_inode_info *ei;
+	struct gps_location curr_gps;
+	// TODO: set curr_gps as current gps
+
+	if (inode == NULL)
+        return -EINVAL;
+    ei = EXT2_I(inode);
+	ei->i_lat_integer = curr_gps.lat_integer;
+	ei->i_lat_fractional = curr_gps.lat_fractional;
+	ei->i_lng_integer = curr_gps.lng_integer;
+	ei->i_lng_fractional = curr_gps.lng_fractional;
+	ei->i_accuracy = curr_gps.accuracy;
+	return 0;
+}
+
+int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) {
+    struct ext2_inode_info *ei;
+    if (inode == NULL || gps == NULL)
+        return -EINVAL;
+	// TODO: get permission depend on gps
+    ei = EXT2_I(inode);
+	gps->lat_integer = ei->i_lat_integer;
+	gps->lat_fractional = ei->i_lat_fractional;
+	gps->lng_integer = ei->i_lng_integer;
+	gps->lng_fractional = ei->i_lng_fractional;
+	gps->accuracy = ei->i_accuracy;
+	return 0;
+}
+
 /*
  * We have mostly NULL's here: the current defaults are ok for
  * the ext2 filesystem.
