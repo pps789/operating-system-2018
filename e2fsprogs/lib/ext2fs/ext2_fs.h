@@ -389,13 +389,7 @@ struct ext2_inode {
 	__u16	i_links_count;	/* Links count */
 	__u32	i_blocks;	/* Blocks count */
 	__u32	i_flags;	/* File flags */
-	//gps location variables
-    __le32  i_lat_integer;
-    __le32  i_lat_fractional;
-    __le32  i_lng_integer;
-    __le32  i_lng_fractional;
-    __le32  i_accuracy;
-    union {
+	union {
 		struct {
 			__u32	l_i_version; /* was l_i_reserved1 */
 		} linux1;
@@ -426,6 +420,13 @@ struct ext2_inode {
 			__u32	h_i_author;
 		} hurd2;
 	} osd2;				/* OS dependent 2 */
+	//gps location variables
+    __le32  i_lat_integer;
+    __le32  i_lat_fractional;
+    __le32  i_lng_integer;
+    __le32  i_lng_fractional;
+    __le32  i_accuracy;
+    
 };
 
 /*
@@ -444,12 +445,6 @@ struct ext2_inode_large {
 	__u32	i_blocks;	/* Blocks count */
 	__u32	i_flags;	/* File flags */
     //gps location variables
-	__le32  i_lat_integer;
-    __le32  i_lat_fractional;
-    __le32  i_lng_integer;
-    __le32  i_lng_fractional;
-    __le32  i_accuracy;
- 
 	union {
 		struct {
 			__u32	l_i_version; /* was l_i_reserved1 */
@@ -490,6 +485,14 @@ struct ext2_inode_large {
 	__u32	i_crtime_extra;	/* extra File creation time (nsec << 2 | epoch)*/
 	__u32	i_version_hi;	/* high 32 bits for 64-bit version */
 	__u32   i_projid;       /* Project ID */
+	//gps locaiton variables
+	__le32  i_lat_integer;
+    __le32  i_lat_fractional;
+    __le32  i_lng_integer;
+    __le32  i_lng_fractional;
+    __le32  i_accuracy;
+ 
+
 };
 
 #define EXT4_INODE_CSUM_HI_EXTRA_END	\
