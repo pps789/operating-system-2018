@@ -1377,6 +1377,13 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	ei->i_block_group = (ino - 1) / EXT2_INODES_PER_GROUP(inode->i_sb);
 	ei->i_dir_start_lookup = 0;
 
+    /* GPS FIX */
+    ei->i_lat_integer = le32_to_cpu(raw_inode->i_lat_integer);
+    ei->i_lat_fractional = le32_to_cpu(raw_inode->i_lat_integer);
+    ei->i_lng_integer = le32_to_cpu(raw_inode->i_lng_integer);
+    ei->i_lng_fractional = le32_to_cpu(raw_inode->i_lng_fractional);
+    ei->i_accuracy = le32_to_cpu(raw_inode->i_accuracy);
+
 	/*
 	 * NOTE! The in-memory inode i_data array is in little-endian order
 	 * even on big-endian machines: we do NOT byteswap the block numbers!
@@ -1481,6 +1488,13 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
 	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
 	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
+
+    /* GPS FIX */
+    raw_inode->i_lat_integer = cpu_to_le32(ei->i_lat_integer);
+    raw_inode->i_lat_fractional = cpu_to_le32(ei->i_lat_fractional);
+    raw_inode->i_lng_integer = cpu_to_le32(ei->i_lng_integer);
+    raw_inode->i_lng_fractional = cpu_to_le32(ei->i_lng_fractional);
+    raw_inode->i_accuracy = cpu_to_le32(ei->i_accuracy);
 
 	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
 	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
