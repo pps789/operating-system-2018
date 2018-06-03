@@ -1216,6 +1216,8 @@ static int ext2_setsize(struct inode *inode, loff_t newsize)
 	__ext2_truncate_blocks(inode, newsize);
 
 	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
+    /* GPS FIX */
+    if (inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
     
     if (inode_needs_sync(inode)) {
 		sync_mapping_buffers(inode->i_mapping);
