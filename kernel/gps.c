@@ -79,12 +79,17 @@ int get_gps_location(const char __user *pathname, struct gps_location __user *lo
         goto out;
     }
 
+    /* found inode. first check permissions... */
+    if ((inode_permission(inode, MAY_READ)) < 0) {
+        retval = -EACCES;
+        goto out;
+    }
+
     if (inode->i_op->get_gps_location == 0) {
         retval = -ENODEV;
         goto out;
     }
 
-    /* TODO: permission check here? how? */
     if ((retval = inode->i_op->get_gps_location(inode, &gps)) < 0) {
         goto out;
     }

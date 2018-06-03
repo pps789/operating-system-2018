@@ -59,7 +59,7 @@ int ext2_fsync(struct file *file, loff_t start, loff_t end, int datasync)
 }
 
 /* location setting functions*/
-int ext2_set_gps_location(struct inode *inode) {
+static int ext2_set_gps_location(struct inode *inode) {
     struct ext2_inode_info *ei;
 
 	if (inode == NULL)
@@ -77,7 +77,7 @@ int ext2_set_gps_location(struct inode *inode) {
 	return 0;
 }
 
-int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) {
+static int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) {
     struct ext2_inode_info *ei;
     if (inode == NULL || gps == NULL)
         return -EINVAL;
