@@ -81,7 +81,7 @@ static int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) 
     struct ext2_inode_info *ei;
     if (inode == NULL || gps == NULL)
         return -EINVAL;
-	// TODO: get permission depend on gps
+
     ei = EXT2_I(inode);
 	gps->lat_integer = ei->i_lat_integer;
 	gps->lat_fractional = ei->i_lat_fractional;
@@ -89,6 +89,28 @@ static int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) 
 	gps->lng_fractional = ei->i_lng_fractional;
 	gps->accuracy = ei->i_accuracy;
 	return 0;
+}
+
+static int is_near(struct gps_location *g1, struct gps_location *g2) {
+    // TODO: implement this!
+    return 1;
+}
+
+static int ext2_permission(struct inode *inode, int mask) {
+    int perm;
+    struct gps_location ig, cg;
+    if ((perm = generic_permission(inode, mask)) < 0)
+        return perm;
+
+    spin_lock(&gps_spinlock);
+    cg = curr_gps;
+    spin_unlock(&gps_spinlock);
+
+    inode->i_op->get_gps_location(inode, &ig);
+
+    if (is_near(&ig, &cg))
+        return 0;
+    else return -EACCES;
 }
 
 /*
@@ -141,4 +163,5 @@ const struct inode_operations ext2_file_inode_operations = {
 	.fiemap		= ext2_fiemap,
 	.set_gps_location = ext2_set_gps_location,
 	.get_gps_location = ext2_get_gps_location,
+    .permission = ext2_permission,
 };
