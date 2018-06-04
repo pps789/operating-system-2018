@@ -27,11 +27,9 @@ int set_gps_location(struct gps_location __user *loc) {
     if (gps.lat_fractional >= 1000000) return -EINVAL;
     if (gps.lng_fractional < 0) return -EINVAL;
     if (gps.lng_fractional >= 1000000) return -EINVAL;
-    if ((gps.lat_integer == -90 || gps.lat_integer == 90)
-            && (gps.lat_fractional > 0))
+    if (gps.lat_integer == 90 && gps.lat_fractional > 0)
         return -EINVAL;
-    if ((gps.lng_integer == -180 || gps.lng_integer == 180)
-            && (gps.lng_fractional > 0))
+    if (gps.lng_integer == 180 && gps.lng_fractional > 0)
         return -EINVAL;
     if (gps.accuracy < 0)
         return -EINVAL;
