@@ -62,7 +62,10 @@ int get_gps_location(const char __user *pathname, struct gps_location __user *lo
         goto out;
     }
 
-    kern_path(pathname, LOOKUP_FOLLOW, &path);
+    retval = kern_path(pathname, LOOKUP_FOLLOW, &path);
+    if (retval < 0) {
+        goto out;
+    }
     if (path.dentry == NULL) {
         retval = -EACCES;
         goto out;
