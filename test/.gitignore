@@ -1,3 +1,5 @@
 *.o
 gpsupdate
 file_loc
+fopen_test
+fopen_holds
