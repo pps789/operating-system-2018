@@ -821,6 +821,7 @@ static int ext2_write_end(struct file *file, struct address_space *mapping,
 	ret = generic_write_end(file, mapping, pos, len, copied, page, fsdata);
 	if (ret < len)
 		ext2_write_failed(mapping, pos + len);
+    /* GPS FIX */
     else {
         struct inode *inode = file_inode(file);
         if (inode && inode->i_op && inode->i_op->set_gps_location)
@@ -1222,7 +1223,7 @@ static int ext2_setsize(struct inode *inode, loff_t newsize)
 
 	inode->i_mtime = inode->i_ctime = CURRENT_TIME_SEC;
     /* GPS FIX */
-    if (inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
+    if (inode->i_op && inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
     
     if (inode_needs_sync(inode)) {
 		sync_mapping_buffers(inode->i_mapping);
