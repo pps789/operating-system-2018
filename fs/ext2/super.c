@@ -1525,6 +1525,7 @@ out:
 	inode->i_version++;
 	inode->i_mtime = inode->i_ctime = CURRENT_TIME;
     /* GPS FIX */
+    /* NOT COMPILE HERE... */
     if (inode->i_op && inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
 	mark_inode_dirty(inode);
 	return len - towrite;
