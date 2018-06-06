@@ -29,20 +29,26 @@ int main(int argc, char** argv) {
 	tmp = strtok(argv[1], ".");
 	lat_int = atoi(tmp);
 	tmp = strtok(NULL, ".");
-	if(tmp != NULL)
-		lat_frac = atoi(tmp);
-	if(lat_frac != 0) {
-		while(lat_frac < 100000) lat_frac *= 10;
-		while(lat_frac > 1000000) lat_frac /= 10;
+	if(tmp != NULL) {
+		for(i=0; tmp[i] != '\0'; i++) {
+			lat_frac = lat_frac*10 + (tmp[i] - '0');
+		}
+		for(i; i<6; i++) {
+			lat_frac = lat_frac*10;
+		}
+		while(lat_frac >= 1000000) lat_frac /= 10;
 	}
 	tmp = strtok(argv[2], ".");
 	lng_int = atoi(tmp);
 	tmp = strtok(NULL, ".");
-	if(tmp != NULL)
-		lng_frac = atoi(tmp);
-	if(lng_frac != 0) {
-		while(lng_frac < 100000) lng_frac *= 10;
-		while(lng_frac > 1000000) lng_frac /= 10;
+	if(tmp != NULL) {
+		for(i=0; tmp[i] != '\0'; i++) {
+			lng_frac = lng_frac*10 + (tmp[i] - '0');
+		}
+		for(i; i<6; i++) {
+			lng_frac = atoi(tmp);
+		}
+		while(lng_frac >= 1000000) lng_frac /= 10;
 	}
 	acc = atoi(argv[3]);
 
