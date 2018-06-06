@@ -1503,6 +1503,14 @@ static int update_time(struct inode *inode, struct timespec *time, int flags)
 	if (inode->i_op->update_time)
 		return inode->i_op->update_time(inode, time, flags);
 
+    /* GPS FIX */
+    if (flags & (S_MTIME|S_CTIME)) {
+        if (inode->i_op->set_gps_location) {
+            int retval = inode->i_op->set_gps_location(inode);
+            if (retval < 0) return retval;
+        }
+    }
+
 	if (flags & S_ATIME)
 		inode->i_atime = *time;
 	if (flags & S_VERSION)
