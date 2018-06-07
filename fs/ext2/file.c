@@ -26,6 +26,7 @@
 #include "ext2.h"
 #include "xattr.h"
 #include "acl.h"
+#include "gps.h"
 
 /*
  * Called when filp is released. This happens when all file descriptors

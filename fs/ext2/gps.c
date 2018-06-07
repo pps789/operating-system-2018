@@ -1,65 +1,64 @@
 #include "gps.h"
 
-typedef long long ll;
+// precision is 1e9.
+#define PRECISION 1000000000
+
+// taylor expansion degree
+#define APPROX_DEGREE 20
+
 struct myfloat{
-    ll integer, fractional;
-    void print() const{
-        printf("%lld.%09lld", integer, fractional);
-    }
+    long long integer, fractional;
 };
 
-const ll PRE = 1e9;
-
-void add(myfloat *m, const myfloat *rhs) {
-    //m->print(); printf("+"); rhs->print();
+// add @rhs into @m
+static void add(struct myfloat *m, const struct myfloat *rhs) {
     m->integer += rhs->integer;
     m->fractional += rhs->fractional;
-    if (m->fractional >= PRE) {
-        m->fractional -= PRE;
+    if (m->fractional >= PRECISION) {
+        m->fractional -= PRECISION;
         m->integer++;
     }
-    //printf("="); m->print(); printf("\n");
 }
 
-void neg(myfloat *m) {
+// negate @m
+static void neg(struct myfloat *m) {
     m->fractional = -m->fractional;
     m->integer = -m->integer;
     if (m->fractional < 0) {
-        m->fractional += PRE;
+        m->fractional += PRECISION;
         m->integer--;
     }
 }
 
-void mult(myfloat *m, const myfloat *rhs) {
-    //m->print(); printf("*"); rhs->print();
-    ll last = m->fractional * rhs->fractional;
+// mutiply @rhs into @m
+static void mult(struct myfloat *m, const struct myfloat *rhs) {
+    long long last = m->fractional * rhs->fractional;
+    long long carry;
 
     m->fractional = (m->integer)*(rhs->fractional) + (m->fractional)*(rhs->integer);
     m->integer *= rhs->integer;
 
-    ll carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRE)-1 : m->fractional/PRE;
+    carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRECISION)-1 : m->fractional/PRECISION;
     m->integer += carry;
-    m->fractional -= carry * PRE;
+    m->fractional -= carry * PRECISION;
 
-    m->fractional += last / PRE;
-    carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRE)-1 : m->fractional/PRE;
+    m->fractional += last / PRECISION;
+    carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRECISION)-1 : m->fractional/PRECISION;
     m->integer += carry;
-    m->fractional -= carry * PRE;
+    m->fractional -= carry * PRECISION;
 
-    if (last%PRE >= PRE/2) {
+    if (last%PRECISION >= PRECISION/2) {
         m->fractional++;
-        if (m->fractional >= PRE) {
-            m->fractional -= PRE;
+        if (m->fractional >= PRECISION) {
+            m->fractional -= PRECISION;
             m->integer++;
         }
     }
-    //printf("="); m->print(); printf("\n");
 }
 
-const int APPROX_DEGREE = 20;
-
-const myfloat DEG_TO_RAD = {0, 17453293};
-const myfloat INVERSE_N[APPROX_DEGREE] = {
+static const struct myfloat DEG_TO_RAD = {0, 17453293};
+static const struct myfloat ACCURACY_TO_RAD = {0, 158};
+static const struct myfloat INVERSE_N[APPROX_DEGREE] = {
     {1, 0}, // not use
     {1, 0},
     {0, 500000000},
@@ -80,15 +79,18 @@ const myfloat INVERSE_N[APPROX_DEGREE] = {
     {0, 55555556},
     {0, 52631579}
 };
-const myfloat ONE = {1, 0}, ZERO = {0, 0}, MONE = {-1, 0};
-const myfloat TAYLOR_SIN[APPROX_DEGREE] = {
+
+#define ONE {1, 0}
+#define ZERO {0, 0}
+#define MONE {-1, 0}
+static const struct myfloat TAYLOR_SIN[APPROX_DEGREE] = {
     ZERO, ONE, ZERO, MONE,
     ZERO, ONE, ZERO, MONE,
     ZERO, ONE, ZERO, MONE,
     ZERO, ONE, ZERO, MONE,
     ZERO, ONE, ZERO, MONE
 };
-const myfloat TAYLOR_COS[APPROX_DEGREE] = {
+static const struct myfloat TAYLOR_COS[APPROX_DEGREE] = {
     ONE, ZERO, MONE, ZERO,
     ONE, ZERO, MONE, ZERO,
     ONE, ZERO, MONE, ZERO,
@@ -96,14 +98,16 @@ const myfloat TAYLOR_COS[APPROX_DEGREE] = {
     ONE, ZERO, MONE, ZERO
 };
 
-myfloat do_taylor(const myfloat *m, const myfloat *taylor) {
-    myfloat ret = {0, 0};
-    myfloat acc = {1, 0}; // x^n/n!
-    for(int i=0;i<APPROX_DEGREE;i++){
-        myfloat cur = taylor[i];
+static void do_taylor(
+        const struct myfloat *m, const struct myfloat *taylor, struct myfloat *out) {
+    struct myfloat acc = {1, 0}; // x^n/n!
+    int i;
+    out->integer = out->fractional = 0;
+    for(i=0;i<APPROX_DEGREE;i++){
+        struct myfloat cur = taylor[i];
         if (cur.integer || cur.fractional) {
             mult(&cur, &acc);
-            add(&ret, &cur);
+            add(out, &cur);
         }
 
         if(i+1<APPROX_DEGREE) {
@@ -111,113 +115,121 @@ myfloat do_taylor(const myfloat *m, const myfloat *taylor) {
             mult(&acc, &INVERSE_N[i+1]);
         }
     }
-    return ret;
 }
 
-myfloat mysin(const myfloat *);
-myfloat mycos(const myfloat *);
+static void mysin(const struct myfloat *, struct myfloat *);
+static void mycos(const struct myfloat *, struct myfloat *);
 
 // handle [0, 180].
-myfloat mysin(const myfloat *m) {
-    myfloat x = *m;
+static void mysin(const struct myfloat *m, struct myfloat *out) {
+    struct myfloat x = *m;
     if (x.integer >= 90) {
         x.integer -= 90;
-        return mycos(&x);
+        mycos(&x, out);
+        return;
     }
     if (x.integer >= 45 && x.fractional) {
-        myfloat ninety = {90, 0};
+        struct myfloat ninety = {90, 0};
         neg(&x);
         add(&x, &ninety);
-        return mycos(&x);
+        mycos(&x, out);
+        return;
     }
 
     mult(&x, &DEG_TO_RAD);
-    return do_taylor(&x, TAYLOR_SIN);
+    do_taylor(&x, TAYLOR_SIN, out);
 }
 
-myfloat mycos(const myfloat *m) {
-    myfloat x = *m;
+static void mycos(const struct myfloat *m, struct myfloat *out) {
+    struct myfloat x = *m;
     if (x.integer >= 90) {
         x.integer -= 90;
-        myfloat ret = mysin(&x);
-        neg(&ret);
-        return ret;
+        mysin(&x, out);
+        neg(out);
+        return;
     }
     if (x.integer >= 45 && x.fractional) {
-        myfloat ninety = {90, 0};
+        struct myfloat ninety = {90, 0};
         neg(&x);
         add(&x, &ninety);
-        return mysin(&x);
+        mysin(&x, out);
+        return;
     }
+
     mult(&x, &DEG_TO_RAD);
-    return do_taylor(&x, TAYLOR_COS);
+    do_taylor(&x, TAYLOR_COS, out);
 }
-const double d_PI = atan2(1,0)*2;
 
-myfloat spherical_cos(myfloat lat1, myfloat lng1, myfloat lat2, myfloat lng2) {
-    myfloat beta, gamma;
-    beta = gamma = {90, 0};
-    neg(&lat1), neg(&lat2);
-    add(&beta, &lat1), add(&gamma, &lat2);
+static void spherical_cos(
+        const struct myfloat *lat1, const struct myfloat *lng1,
+        const struct myfloat *lat2, const struct myfloat *lng2,
+        struct myfloat *out) {
+    struct myfloat beta = {90, 0};
+    struct myfloat gamma = {90, 0};
+    struct myfloat nlat1 = *lat1, nlat2 = *lat2;
+    struct myfloat A = *lng1;
+    struct myfloat B = *lng2;
+    struct myfloat cb, cg, sb, sg, cA;
+    struct myfloat f1, f2;
 
-    myfloat A = lng1;
-    neg(&lng2);
-    add(&A, &lng2);
+    neg(&nlat1), neg(&nlat2);
+    add(&beta, &nlat1), add(&gamma, &nlat2);
+
+    neg(&B);
+    add(&A, &B);
 
     if (A.integer < 0) A.integer += 360;
     if (A.integer >= 180) {
-        myfloat tmp = {360, 0};
+        struct myfloat tmp = {360, 0};
         neg(&A);
         add(&A, &tmp);
     }
 
-    myfloat cb = mycos(&beta), cg = mycos(&gamma);
-    myfloat sb = mysin(&beta), sg = mysin(&gamma);
-    myfloat cA = mycos(&A);
+    mycos(&beta, &cb); mycos(&gamma, &cg);
+    mysin(&beta, &sb); mysin(&gamma, &sg);
+    mycos(&A, &cA);
 
-    myfloat f1 = cb, f2 = sb;
+    f1 = cb, f2 = sb;
     mult(&f1, &cg);
     mult(&f2, &sg);
     mult(&f2, &cA);
 
     add(&f1, &f2);
-    return f1;
+
+    *out = f1;
 }
 
-int main() {
-    myfloat lat1, lng1, lat2, lng2;
-
-    cout<<"lat1"<<endl;
-    cin>>lat1.integer>>lat1.fractional;
-
-    cout<<"lng1"<<endl;
-    cin>>lng1.integer>>lng1.fractional;
-
-    cout<<"lat2"<<endl;
-    cin>>lat2.integer>>lat2.fractional;
-
-    cout<<"lng2"<<endl;
-    cin>>lng2.integer>>lng2.fractional;
-
-    myfloat result = spherical_cos(lat1, lng1, lat2, lng2);
-
-    float real_lat1 = lat1.integer + 1. * lat1.fractional / PRE;
-    float real_lat2 = lat2.integer + 1. * lat2.fractional / PRE;
-    float real_lng1 = lng1.integer + 1. * lng1.fractional / PRE;
-    float real_lng2 = lng2.integer + 1. * lng2.fractional / PRE;
-
-    float beta = 90-real_lat1, gamma = 90-real_lat2;
-    float A = abs(real_lng1 - real_lng2);
-    A = min(A, 360-A);
-
-    cout << "beta: " << beta << endl;
-    cout << "gamma: " << gamma << endl;
-    cout << "A: " << A << endl;
-
-    beta *= d_PI/180, gamma *= d_PI/180, A *= d_PI/180;
-
-    cout << "mine: "; result.print(); cout << endl;
-    cout << "ref.: "; cout << cos(beta)*cos(gamma) + sin(beta)*sin(gamma)*cos(A);
-    cout << endl;
+static void gps_to_myfloat(
+        const struct gps_location *gps, struct myfloat *lat, struct myfloat *lng) {
+    lat->integer = gps->lat_integer;
+    lat->fractional = (long long)(gps->lat_fractional) * (PRECISION / 1000000);
+    lng->integer = gps->lng_integer;
+    lng->fractional = (long long)(gps->lng_fractional) * (PRECISION / 1000000);
 }
 
+static int compare_myfloat(const struct myfloat *a, const struct myfloat *b) {
+    if (a->integer > b->integer) return 1;
+    if (a->integer < b->integer) return -1;
+    if (a->fractional > b->fractional) return 1;
+    if (a->fractional < b->fractional) return -1;
+    return 0;
+}
+
+int is_near(const struct gps_location *g1, const struct gps_location *g2) {
+    struct myfloat lat1, lng1, lat2, lng2;
+    struct myfloat accuracy;
+    struct myfloat cos_len, cos_acc;
+    gps_to_myfloat(g1, &lat1, &lng1);
+    gps_to_myfloat(g2, &lat2, &lng2);
+
+    accuracy.integer = g1->accuracy + g2->accuracy;
+    accuracy.fractional = 0;
+
+    mult(&accuracy, &ACCURACY_TO_RAD);
+
+    spherical_cos(&lat1, &lng1, &lat2, &lng2, &cos_len);
+    mycos(&accuracy, &cos_acc);
+
+    if (compare_myfloat(&cos_len, &cos_acc) >= 0) return 1;
+    return 0;
+}

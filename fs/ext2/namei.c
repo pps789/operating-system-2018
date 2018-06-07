@@ -168,7 +168,7 @@ static int ext2_symlink (struct inode * dir, struct dentry * dentry,
 		/* slow symlink */
 		inode->i_op = &ext2_symlink_inode_operations;
 		//gps update
-		if(inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode):
+		if(inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
 		if (test_opt(inode->i_sb, NOBH))
 			inode->i_mapping->a_ops = &ext2_nobh_aops;
 		else
