@@ -91,11 +91,6 @@ static int ext2_get_gps_location(struct inode *inode, struct gps_location *gps) 
 	return 0;
 }
 
-static int is_near(struct gps_location *g1, struct gps_location *g2) {
-    // TODO: implement this!
-    return 1;
-}
-
 static int ext2_permission(struct inode *inode, int mask) {
     int perm;
     struct gps_location ig, cg;

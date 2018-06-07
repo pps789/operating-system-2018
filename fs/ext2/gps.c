@@ -1,9 +1,4 @@
-#include<iostream>
-#include<cmath>
-#include<algorithm>
-#include<vector>
-#include<cstdio>
-using namespace std;
+#include "gps.h"
 
 typedef long long ll;
 struct myfloat{
