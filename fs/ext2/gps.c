@@ -36,8 +36,6 @@ static void mult(struct myfloat *m, const struct myfloat *rhs) {
     long long last = m->fractional * rhs->fractional;
     long long carry;
 
-    printk("%llu\n", div64_long(last, PRECISION));
-
     m->fractional = (m->integer)*(rhs->fractional) + (m->fractional)*(rhs->integer);
     m->integer *= rhs->integer;
 
@@ -60,7 +58,7 @@ static void mult(struct myfloat *m, const struct myfloat *rhs) {
 }
 
 static const struct myfloat DEG_TO_RAD = {0, 17453293};
-static const struct myfloat ACCURACY_TO_RAD = {0, 158};
+static const struct myfloat ACCURACY_TO_DEG = {0, 9014};
 static const struct myfloat INVERSE_N[APPROX_DEGREE] = {
     {1, 0}, // not use
     {1, 0},
@@ -123,7 +121,7 @@ static void do_taylor(
 static void mysin(const struct myfloat *, struct myfloat *);
 static void mycos(const struct myfloat *, struct myfloat *);
 
-// handle [0, 180].
+// handle [0, 180], input is DEGREE.
 static void mysin(const struct myfloat *m, struct myfloat *out) {
     struct myfloat x = *m;
     if (x.integer >= 90) {
@@ -131,7 +129,7 @@ static void mysin(const struct myfloat *m, struct myfloat *out) {
         mycos(&x, out);
         return;
     }
-    if (x.integer >= 45 && x.fractional) {
+    if (x.integer > 45 || (x.integer == 45 && x.fractional)) {
         struct myfloat ninety = {90, 0};
         neg(&x);
         add(&x, &ninety);
@@ -151,7 +149,7 @@ static void mycos(const struct myfloat *m, struct myfloat *out) {
         neg(out);
         return;
     }
-    if (x.integer >= 45 && x.fractional) {
+    if (x.integer > 45 || (x.integer == 45 && x.fractional)) {
         struct myfloat ninety = {90, 0};
         neg(&x);
         add(&x, &ninety);
@@ -228,7 +226,7 @@ int is_near(const struct gps_location *g1, const struct gps_location *g2) {
     accuracy.integer = g1->accuracy + g2->accuracy;
     accuracy.fractional = 0;
 
-    mult(&accuracy, &ACCURACY_TO_RAD);
+    mult(&accuracy, &ACCURACY_TO_DEG);
     if (accuracy.integer >= 180) return 1;
 
     spherical_cos(&lat1, &lng1, &lat2, &lng2, &cos_len);
