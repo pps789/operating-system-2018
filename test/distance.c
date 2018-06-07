@@ -31,7 +31,7 @@ void neg(struct format *a) {
 }
 void mul(struct format *a, const struct format *b) {
     int last = a->fractional * b->fractional;
-    a->fractional = (a->integer * b->fractional) + (a->fractional * b->fractional);
+    a->fractional = (a->integer) * (b->fractional) + (a->fractional) * (b->fractional);
     a->integer *= b->integer;
 
     int carry = (a->fractional) < 0 ? -((-a->fractional-1)/LEN)-1 : a->fractional/LEN;
@@ -77,23 +77,6 @@ const struct format INVERSE_N[APPROX_DEGREE] = {
 };
 struct format mysin(struct format *);
 struct format mycos(struct format *);
-/*
-const static struct format ONE = {1, 0}, ZERO = {0, 0}, MONE = {-1, 0};
-const static struct format TAYLOR_SIN[20] = {
-    ZERO, ONE, ZERO, MONE,
-    ZERO, ONE, ZERO, MONE,
-    ZERO, ONE, ZERO, MONE,
-    ZERO, ONE, ZERO, MONE,
-    ZERO, ONE, ZERO, MONE
-};
-const static struct format TAYLOR_COS[APPROX_DEGREE] = {
-    ONE, ZERO, MONE, ZERO,
-    ONE, ZERO, MONE, ZERO,
-    ONE, ZERO, MONE, ZERO,
-    ONE, ZERO, MONE, ZERO,
-    ONE, ZERO, MONE, ZERO
-};
-*/
 struct format do_taylor(struct format *m, struct format *taylor) {
     struct format ret = {0, 0};
     struct format acc = {1, 0}; // x^n/n!
@@ -155,7 +138,7 @@ struct format mycos(struct format *m) {
     }
     if (x.integer >= 45 && x.fractional) {
         struct format ninety = {90, 0};
-        neg(&x);
+  x      neg(&x);
         add(&x, &ninety);
         return mysin(&x);
     }
@@ -193,7 +176,7 @@ struct format spherical_cos(struct format lat1, struct format lng1, struct forma
     return f1;
 } 
 int main() {
-    struct format d_PI = {1, 57079};
+    struct format d_PI = {3, 141580};
     struct format lat1, lng1, lat2, lng2;
 	
 	printf("lat1\n");
