@@ -33,7 +33,7 @@ static void neg(struct myfloat *m) {
 
 // mutiply @rhs into @m
 static void mult(struct myfloat *m, const struct myfloat *rhs) {
-    unsigned long long last = m->fractional * rhs->fractional;
+    long long last = m->fractional * rhs->fractional;
     long long carry;
 
     printk("%llu\n", div64_long(last, PRECISION));
