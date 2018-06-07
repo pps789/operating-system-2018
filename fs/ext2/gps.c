@@ -1,3 +1,4 @@
+#include <linux/math64.h>
 #include "gps.h"
 
 // precision is 1e9.
@@ -32,22 +33,24 @@ static void neg(struct myfloat *m) {
 
 // mutiply @rhs into @m
 static void mult(struct myfloat *m, const struct myfloat *rhs) {
-    long long last = m->fractional * rhs->fractional;
+    unsigned long long last = m->fractional * rhs->fractional;
     long long carry;
+
+    printk("%llu\n", div64_long(last, PRECISION));
 
     m->fractional = (m->integer)*(rhs->fractional) + (m->fractional)*(rhs->integer);
     m->integer *= rhs->integer;
 
-    carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRECISION)-1 : m->fractional/PRECISION;
+    carry = (m->fractional) < 0 ? -div64_long(-m->fractional-1, PRECISION)-1 : div64_long(m->fractional, PRECISION);
     m->integer += carry;
     m->fractional -= carry * PRECISION;
 
-    m->fractional += last / PRECISION;
-    carry = (m->fractional) < 0 ? -((-m->fractional-1)/PRECISION)-1 : m->fractional/PRECISION;
+    m->fractional += div64_long(last, PRECISION);
+    carry = (m->fractional) < 0 ? -div64_long(-m->fractional-1, PRECISION)-1 : div64_long(m->fractional, PRECISION);
     m->integer += carry;
     m->fractional -= carry * PRECISION;
 
-    if (last%PRECISION >= PRECISION/2) {
+    if (last - div64_long(last, PRECISION)*PRECISION >= PRECISION/2) {
         m->fractional++;
         if (m->fractional >= PRECISION) {
             m->fractional -= PRECISION;
@@ -226,6 +229,7 @@ int is_near(const struct gps_location *g1, const struct gps_location *g2) {
     accuracy.fractional = 0;
 
     mult(&accuracy, &ACCURACY_TO_RAD);
+    if (accuracy.integer >= 180) return 1;
 
     spherical_cos(&lat1, &lng1, &lat2, &lng2, &cos_len);
     mycos(&accuracy, &cos_acc);
