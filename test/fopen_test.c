@@ -2,7 +2,7 @@
 #include<stdlib.h>
 
 int main() {
-    FILE *fp = fopen("tmp.txt", "w");
+    FILE *fp = fopen("/home/owner/proj4/tmp.txt", "w");
 
     fprintf(fp, "HO!\n");
 

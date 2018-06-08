@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <asm-generic/errno-base.h>
 
 struct gps_location {
 	int lat_integer;
@@ -46,11 +47,15 @@ int main(int argc, char** argv) {
 			lng_frac = lng_frac*10 + (tmp[i] - '0');
 		}
 		for(i; i<6; i++) {
-			lng_frac = atoi(tmp);
+			lng_frac = lng_frac*10;
 		}
 		while(lng_frac >= 1000000) lng_frac /= 10;
 	}
 	acc = atoi(argv[3]);
+	if(acc < 0) {
+		printf("Accuracy should not be negative integer.\n");
+		return -EINVAL;
+	}
 
 	// put integer into gps_loc
 	gps_loc.lat_integer = lat_int;
