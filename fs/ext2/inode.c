@@ -1591,7 +1591,7 @@ int ext2_setattr(struct dentry *dentry, struct iattr *iattr)
 	setattr_copy(inode, iattr);
     /* GPS FIX */
     if (iattr->ia_valid & (ATTR_MTIME|ATTR_CTIME))
-        if (inode->i_op->set_gps_location)
+        if (inode && inode->i_op && inode->i_op->set_gps_location)
             inode->i_op->set_gps_location(inode);
 	if (iattr->ia_valid & ATTR_MODE)
 		error = ext2_acl_chmod(inode);

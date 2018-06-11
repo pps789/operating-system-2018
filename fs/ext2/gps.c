@@ -220,6 +220,7 @@ int is_near(const struct gps_location *g1, const struct gps_location *g2) {
     struct myfloat lat1, lng1, lat2, lng2;
     struct myfloat accuracy;
     struct myfloat cos_len, cos_acc;
+    struct myfloat eps = {0, PRECISION / 2000};
     gps_to_myfloat(g1, &lat1, &lng1);
     gps_to_myfloat(g2, &lat2, &lng2);
 
@@ -232,6 +233,8 @@ int is_near(const struct gps_location *g1, const struct gps_location *g2) {
     spherical_cos(&lat1, &lng1, &lat2, &lng2, &cos_len);
     mycos(&accuracy, &cos_acc);
 
+    // add eps...
+    add(&cos_len, &eps);
     if (compare_myfloat(&cos_len, &cos_acc) >= 0) return 1;
     return 0;
 }

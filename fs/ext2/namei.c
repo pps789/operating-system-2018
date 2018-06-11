@@ -141,8 +141,9 @@ static int ext2_mknod (struct inode * dir, struct dentry *dentry, umode_t mode, 
 		mark_inode_dirty(inode);
 		err = ext2_add_nondir(dentry, inode);
 	}
-	//gps update
-	if(inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
+    
+    /* GPS FIX */
+	if (inode->i_op && inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
 	return err;
 }
 
@@ -167,8 +168,6 @@ static int ext2_symlink (struct inode * dir, struct dentry * dentry,
 	if (l > sizeof (EXT2_I(inode)->i_data)) {
 		/* slow symlink */
 		inode->i_op = &ext2_symlink_inode_operations;
-		//gps update
-		if(inode->i_op->set_gps_location) inode->i_op->set_gps_location(inode);
 		if (test_opt(inode->i_sb, NOBH))
 			inode->i_mapping->a_ops = &ext2_nobh_aops;
 		else
