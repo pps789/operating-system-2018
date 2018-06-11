@@ -33,8 +33,8 @@ Project4
   These five unsigned 32bit integers are information of files gps location. Only users who are adjacent enough can open or modify the file.
 
 ### About Adjacency Check
- To check adjacency of two locations, we used special mathmatical tool.
- SULMYUNGBOOTAKHAM
+  To check adjacency of two locations, we have calculate distance between two locations on sphere.
+  We used taylor series to approximate the value of trigonometric functions: sin(x) and cos(x).
 ## Lessons Learned
 1. File system is full of pointers
 
