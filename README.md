@@ -11,12 +11,12 @@ Project4
 ## How to build
 1. To build kernel, type `./build`
 2. To test, move on to `test` folder and type `make all`
-3. Push proj4.fs file to ARTIK device and mount it. Use `mount -o loop -t ext2 [path]/proj4.fs [paht]/proj4` command.
+3. Push proj4.fs file to ARTIK device and mount it. Use `mount -o loop -t ext2 [path]/proj4.fs [path]/proj4` command.
 
 ## High-Level Design
 1. Add `gps.h` to `/include/linux`. Construct `struct gps_location` and `strcut gps_location curr_gps` in this header file.
 2. Modify `ext2.h`, `inode.c`, `file,c`, in `/fs/ext2` to suit for our new ext2 file system depending on gps location.
-3. In `/include/linux/fs.h', add two system calls: `int (*set_gps_location)` and `int (*get_gps_location)`.
+3. In `/include/linux/fs.h`, add two system calls: `int (*set_gps_location)` and `int (*get_gps_location)`.
 4. Add `gps.c` to `/fs/ext2` folder. Implement gps adjacency checking function in this c file.
 
 ## Implementation
