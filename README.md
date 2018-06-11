@@ -4,7 +4,8 @@ Project4
 --------
 
 ## Introduction
-
+ This is the fourth project of the Operation Systems class, 2018 Spring.
+ The goal of this project is to implement a special ext2 file system which authorize users with their gps location.
 
 
 ## How to build
@@ -27,7 +28,8 @@ Project4
  __u32 i_lat_fractional;
  __u32 i_lng_integer;
  __u32 i_lng_fractional;
- __u32 i_accuracy;```
+ __u32 i_accuracy;
+ ```
   These five unsigned 32bit integers are information of files gps location. Only users who are adjacent enough can open or modify the file.
 
 ### About Adjacency Check
