@@ -1387,7 +1387,7 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 
     /* GPS FIX */
     ei->i_lat_integer = le32_to_cpu(raw_inode->i_lat_integer);
-    ei->i_lat_fractional = le32_to_cpu(raw_inode->i_lat_integer);
+    ei->i_lat_fractional = le32_to_cpu(raw_inode->i_lat_fractional);
     ei->i_lng_integer = le32_to_cpu(raw_inode->i_lng_integer);
     ei->i_lng_fractional = le32_to_cpu(raw_inode->i_lng_fractional);
     ei->i_accuracy = le32_to_cpu(raw_inode->i_accuracy);
