@@ -12,6 +12,7 @@ struct gps_location {
 	int accuracy;
 };
 
+#define PRECISION 1000000;
 
 int is_float(char* str) {
     int n = strlen(str);
@@ -114,6 +115,19 @@ int main(int argc, char** argv) {
 	gps_loc.lng_fractional = lng_frac;
 	gps_loc.accuracy = acc;
 	printf("Lat: %d.%06d\nLng: %d.%06d\nAcc: %d\n", gps_loc.lat_integer, gps_loc.lat_fractional, gps_loc.lng_integer, gps_loc.lng_fractional, gps_loc.accuracy);
+
+    // make fractional nonnegative
+    if (gps_loc.lat_integer < 0) gps_loc.lat_fractional *= -1;
+    if (gps_loc.lng_integer < 0) gps_loc.lng_fractional *= -1;
+
+    if (gps_loc.lat_fractional < 0) {
+        gps_loc.lat_fractional += PRECISION;
+        gps_loc.lat_integer--;
+    }
+    if (gps_loc.lat_fractional < 0) {
+        gps_loc.lng_fractional += PRECISION;
+        gps_loc.lng_integer--;
+    }
 	
 	ret = syscall(380, &gps_loc);
     if (ret < 0) perror("");
