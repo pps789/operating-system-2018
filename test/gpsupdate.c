@@ -124,10 +124,12 @@ int main(int argc, char** argv) {
         gps_loc.lat_fractional += PRECISION;
         gps_loc.lat_integer--;
     }
-    if (gps_loc.lat_fractional < 0) {
+    if (gps_loc.lng_fractional < 0) {
         gps_loc.lng_fractional += PRECISION;
         gps_loc.lng_integer--;
     }
+
+    // printf("CALL: %d %d %d %d %d\n", gps_loc.lat_integer, gps_loc.lat_fractional, gps_loc.lng_integer, gps_loc.lng_fractional, gps_loc.accuracy);
 	
 	ret = syscall(380, &gps_loc);
     if (ret < 0) perror("");
