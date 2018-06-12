@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    if (is_natural(argv[3])) {
+    if (!is_natural(argv[3])) {
         printf("(accuracy) should be non-negative integer\n");
         return 1;
     }
